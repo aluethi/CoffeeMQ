@@ -16,4 +16,5 @@ public interface IDatasource {
     void putMessage(Queue q, Message m);
 
     void connect();
+    void disconnect();
 }
