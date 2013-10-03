@@ -8,7 +8,7 @@ import com.company.database.PGDatasource;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Welcome to CoffeeMQ! We're happy to serve. :)\n");
+        System.out.println("Welcome to CoffeeMQ! We're happy to sever. :)\n");
 
         PGDatasource test = new PGDatasource();
         test.connect();
