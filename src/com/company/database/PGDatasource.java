@@ -33,6 +33,7 @@ public class PGDatasource implements IDatasource {
             if (rs_.next()) {
                 System.out.println(rs_.getString(1));
             }
+            q.setId(rs_.getInt(1));
 
             /*st_.executeUpdate("INSERT INTO queue(created) VALUES('" + created.toString() + "')");
             rs_ = st_.executeQuery("SELECT * From queue ORDER BY queueid DESC LIMIT 1");

@@ -18,6 +18,10 @@ public class Queue {
         created_ = created;
     }
 
+    public void setId(int id) {
+        id_ = id;
+    }
+
     public int getId() {
         return id_;
     }
