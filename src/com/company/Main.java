@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.config.Configuration;
 import com.company.model.Message;
 import com.company.model.ModelFactory;
 import com.company.model.Queue;
@@ -11,7 +12,10 @@ import com.company.database.PGDatasource;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Welcome to CoffeeMQ! We're happy to sever. :)\n");
+        System.out.println("Welcome to CoffeeMQ! We're happy to sever your server. ;-)\n");
+
+        Configuration.getProperty("");
+
 
         Queue q1 = ModelFactory.createQueue();
         Queue q2 = ModelFactory.createQueue();
