@@ -1,23 +1,36 @@
 CREATE TABLE Message
 (
-MessageID serial PRIMARY KEY,
-Sender int,
-Receiver int,
-Queue int,
-Context int,
-Priority int,
-Created timestamp,
-Message varchar(255)
+    Id serial PRIMARY KEY,
+    Sender int,
+    Receiver int,
+    Queue int,
+    Context int,
+    Priority int,
+    Created timestamp,
+    Message varchar(255)
 );
 
 CREATE TABLE Queue
 (
-QueueID serial PRIMARY KEY,
-Created timestamp
+    Id serial PRIMARY KEY,
+    Created timestamp
 ); 
 
 CREATE TABLE Client
 (
-ClientID serial PRIMARY KEY,
-Created timestamp
-); 
+    Id serial PRIMARY KEY,
+    Created timestamp
+);
+
+CREATE OR REPLACE FUNCTION createQueue(created timestamp)
+	RETURNS integer AS
+$BODY$
+declare
+	identifier integer;
+begin
+	INSERT INTO queue("created") VALUES($1) RETURNING Id into identifier;
+	return identifier;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
