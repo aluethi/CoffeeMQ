@@ -4,7 +4,6 @@ import com.company.model.Message;
 import com.company.model.Queue;
 
 import java.util.*;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,7 +20,8 @@ import java.util.logging.Logger;
  */
 public class PGDatasource implements IDatasource {
 
-    private Connection con_;
+    private PGConnectionPoolSingleton pool_ = PGConnectionPoolSingleton.getInstance();
+
     private Statement st_;
     private ResultSet rs_;
 
