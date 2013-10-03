@@ -1,7 +1,6 @@
 package com.company.model;
 
-
-import java.util.Date;
+import java.sql.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,10 +17,10 @@ public class Message {
     private int queue_;
     private int context_;
     private int priority_;
-    private Date created_;
+    private Timestamp created_;
     private String message_;
 
-    public Message(int sender, int receiver, int queue, int context, int priority, Date created, String message) {
+    public Message(int sender, int receiver, int queue, int context, int priority, Timestamp created, String message) {
         sender_ = sender;
         receiver_ = receiver;
         queue_ = queue;
@@ -55,7 +54,7 @@ public class Message {
         return priority_;
     }
 
-    public Date getCreated() {
+    public Timestamp getCreated() {
         return created_;
     }
 

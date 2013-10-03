@@ -1,6 +1,6 @@
 package com.company.model;
 
-import java.util.*;
+import java.sql.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,9 +12,9 @@ import java.util.*;
 public class Queue {
 
     private int id_;
-    private Date created_;
+    private Timestamp created_;
 
-    public Queue(Date created) {
+    public Queue(Timestamp created) {
         created_ = created;
     }
 
@@ -22,7 +22,7 @@ public class Queue {
         return id_;
     }
 
-    public Date getCreated() {
+    public Timestamp getCreated() {
         return created_;
     }
 }
