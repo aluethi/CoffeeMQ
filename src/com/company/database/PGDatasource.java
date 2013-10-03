@@ -26,7 +26,7 @@ public class PGDatasource implements IDatasource {
     private ResultSet rs_;
 
     @Override
-    public Queue createQueue() {
+    public void createQueue(Queue q) {
         //Insert a new queue into table 'Queue' and return an instance of class Queue
         try {
             Date created = new Date();
@@ -37,7 +37,7 @@ public class PGDatasource implements IDatasource {
             }
 
             Queue newQueue = new Queue(rs_.getInt(1), rs_.getTimestamp(2));
-            return newQueue;
+            //return newQueue;
         } catch (SQLException ex) {
             Logger lgr = Logger.getLogger(PGDatasource.class.getName());
             lgr.log(Level.SEVERE, ex.getMessage(), ex);

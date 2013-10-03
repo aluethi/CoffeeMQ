@@ -11,7 +11,7 @@ import com.company.model.Queue;
  * To change this template use File | Settings | File Templates.
  */
 public interface IDatasource {
-    Queue createQueue();
+    void createQueue(Queue q);
     void deleteQueue(Queue q);
     void putMessage(Queue q, Message m);
 

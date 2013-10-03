@@ -1,6 +1,5 @@
 package com.company.model;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -12,19 +11,18 @@ import java.util.*;
  */
 public class Queue {
 
-    private final int queueId_;
-    private final Timestamp created_;
+    private int id_;
+    private Date created_;
 
-    public Queue(int queueId, Timestamp created) {
-        queueId_ = queueId;
+    public Queue(Date created) {
         created_ = created;
     }
 
-    public int getQueueId() {
-        return queueId_;
+    public int getId() {
+        return id_;
     }
 
-    public Timestamp getCreatedValue() {
+    public Date getCreated() {
         return created_;
     }
 }

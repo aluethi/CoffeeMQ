@@ -1,6 +1,8 @@
 package com.company.model;
 
 
+import java.util.Date;
+
 /**
  * Created with IntelliJ IDEA.
  * User: nano
@@ -10,22 +12,51 @@ package com.company.model;
  */
 public class Message {
 
-    private final int messageId_;
-    private final int queue_;
-    private final String message_;
+    private int id_;
+    private int sender_;
+    private int receiver_;
+    private int queue_;
+    private int context_;
+    private int priority_;
+    private Date created_;
+    private String message_;
 
-    public Message(int messageId, int queue, String message) {
-        messageId_ = messageId;
+    public Message(int sender, int receiver, int queue, int context, int priority, Date created, String message) {
+        sender_ = sender;
+        receiver_ = receiver;
         queue_ = queue;
+        context_ = context;
+        priority_ = priority;
+        created_ = created;
         message_ = message;
     }
 
-    public int getMessageId() {
-        return messageId_;
+    public int getId() {
+        return id_;
+    }
+
+    public int getSender() {
+        return sender_;
+    }
+
+    public int getReceiver() {
+        return receiver_;
     }
 
     public int getQueue() {
         return queue_;
+    }
+
+    public int getContext() {
+        return context_;
+    }
+
+    public int getPriority() {
+        return priority_;
+    }
+
+    public Date getCreated() {
+        return created_;
     }
 
     public String getMessage() {
