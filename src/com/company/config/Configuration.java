@@ -34,8 +34,8 @@ public class Configuration {
         }
     }
 
-    public static Properties getConfig() {
-        return PROPS_;
+    public static String getProperty(String name) {
+        return PROPS_.getProperty(name);
     }
 
 }

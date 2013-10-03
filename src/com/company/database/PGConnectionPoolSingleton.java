@@ -1,5 +1,6 @@
 package com.company.database;
 
+import com.company.config.Configuration;
 import org.postgresql.ds.PGPoolingDataSource;
 
 import java.sql.Connection;
@@ -30,12 +31,12 @@ public class PGConnectionPoolSingleton {
 
     private PGConnectionPoolSingleton() {
         source_ = new PGPoolingDataSource();
-        source_.setServerName("localhost");
-        source_.setDatabaseName("coffeemq");
-        source_.setUser("coffeemquser");
-        source_.setPassword("coffeemqrules");
-        source_.setMaxConnections(10);
-        source_.setInitialConnections(10);
+        source_.setServerName(Configuration.getProperty("db.server.name"));
+        source_.setDatabaseName(Configuration.getProperty("db.database.name"));
+        source_.setUser(Configuration.getProperty("db.user"));
+        source_.setPassword(Configuration.getProperty("db.password"));
+        source_.setMaxConnections(Integer.getInteger(Configuration.getProperty("db.pool.max")));
+        source_.setInitialConnections(Integer.getInteger(Configuration.getProperty("db.pool.initial")));
     }
 
     public Connection getConnection() {
