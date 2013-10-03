@@ -14,9 +14,12 @@ public class Main {
         System.out.println("Welcome to CoffeeMQ! We're happy to sever. :)\n");
 
         Queue q1 = ModelFactory.createQueue();
+        Queue q2 = ModelFactory.createQueue();
         PGDatasource test = new PGDatasource();
         test.connect();
         test.createQueue(q1);
+        test.createQueue(q2);
+        test.deleteQueue(q1);
         //System.out.println(testQueue.getCreatedValue().toString());
         //test.deleteQueue(testQueue1);
         test.disconnect();

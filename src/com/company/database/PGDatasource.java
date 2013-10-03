@@ -30,6 +30,9 @@ public class PGDatasource implements IDatasource {
             cst_ = con_.prepareCall("{ call createqueue(?) }");
             cst_.setTimestamp(1, q.getCreated());
             rs_ = cst_.executeQuery();
+            if (rs_.next()) {
+                System.out.println(rs_.getString(1));
+            }
 
             /*st_.executeUpdate("INSERT INTO queue(created) VALUES('" + created.toString() + "')");
             rs_ = st_.executeQuery("SELECT * From queue ORDER BY queueid DESC LIMIT 1");
@@ -46,8 +49,12 @@ public class PGDatasource implements IDatasource {
     public void deleteQueue(Queue q) {
         //Delete queue from table 'Queue'
         try {
-            int queueId = q.getId();
-            st_.executeUpdate("DELETE FROM queue WHERE queueid=" + queueId);
+            cst_ = con_.prepareCall("{ call deletequeue(?) }");
+            cst_.setInt(1, q.getId());
+            cst_.execute();
+
+            /*int queueId = q.getId();
+            st_.executeUpdate("DELETE FROM queue WHERE queueid=" + queueId);*/
         } catch (SQLException ex) {
             Logger lgr = Logger.getLogger(PGDatasource.class.getName());
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
