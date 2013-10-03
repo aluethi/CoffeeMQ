@@ -20,7 +20,7 @@ public class DAO {
         datasource_.connect();
     }
 
-    public Queue createQueue() {
-        return datasource_.createQueue();
+    public void createQueue(Queue q) {
+        datasource_.createQueue(q);
     }
 }

@@ -13,7 +13,7 @@ import com.company.model.Queue;
 public interface IDatasource {
     void createQueue(Queue q);
     void deleteQueue(Queue q);
-    void putMessage(Message m);
+    void putMessage(Queue q, Message m);
 
     void connect();
     void disconnect();

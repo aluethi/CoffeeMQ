@@ -1,6 +1,6 @@
 package com.company.model;
 
-import java.util.Date;
+import java.sql.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,14 +12,14 @@ import java.util.Date;
 public class ModelFactory {
 
     public static Queue createQueue() {
-        return createQueue(new Date());
+        return createQueue(new Timestamp(System.currentTimeMillis()));
     }
 
-    public static Queue createQueue(Date created) {
+    public static Queue createQueue(Timestamp created) {
         return new Queue(created);
     }
 
-    public static Message createMessage(int sender, int receiver, int queue, int context, int priority, Date created, String message) {
+    public static Message createMessage(int sender, int receiver, int queue, int context, int priority, Timestamp created, String message) {
         return new Message(sender, receiver, queue, context, priority, created, message);
     }
 }
