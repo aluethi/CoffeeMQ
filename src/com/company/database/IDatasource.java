@@ -1,5 +1,6 @@
 package com.company.database;
 
+import com.company.exception.QueueCreationException;
 import com.company.model.Message;
 import com.company.model.Queue;
 
@@ -11,7 +12,7 @@ import com.company.model.Queue;
  * To change this template use File | Settings | File Templates.
  */
 public interface IDatasource {
-    void createQueue(Queue q);
+    void createQueue(Queue q) throws QueueCreationException;
     void deleteQueue(Queue q);
     void putMessage(Queue q, Message m);
 

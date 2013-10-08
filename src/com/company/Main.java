@@ -1,11 +1,9 @@
 package com.company;
 
 import com.company.config.Configuration;
-import com.company.model.Message;
+import com.company.database.PGConnectionPool;
 import com.company.model.ModelFactory;
 import com.company.model.Queue;
-
-import java.util.Date;
 
 import com.company.database.PGDatasource;
 
@@ -14,8 +12,8 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Welcome to CoffeeMQ! We're happy to sever your server. ;-)\n");
 
-        Configuration.getProperty("");
-
+        Configuration.initConfig("var/config.prop");
+        PGConnectionPool pool = PGConnectionPool.getInstance();
 
         Queue q1 = ModelFactory.createQueue();
         Queue q2 = ModelFactory.createQueue();

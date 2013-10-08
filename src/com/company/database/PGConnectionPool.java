@@ -15,28 +15,28 @@ import java.util.logging.Logger;
  * Time: 4:55 PM
  * To change this template use File | Settings | File Templates.
  */
-public class PGConnectionPoolSingleton {
+public class PGConnectionPool {
 
-    private static Logger LOGGER_ = Logger.getLogger(PGConnectionPoolSingleton.class.getCanonicalName());
-    private static PGConnectionPoolSingleton INSTANCE_ = null;
+    private static Logger LOGGER_ = Logger.getLogger(PGConnectionPool.class.getCanonicalName());
+    private static PGConnectionPool INSTANCE_ = null;
 
     private PGPoolingDataSource source_;
 
-    public static PGConnectionPoolSingleton getInstance() {
+    public static PGConnectionPool getInstance() {
         if(INSTANCE_ == null) {
-            INSTANCE_ = new PGConnectionPoolSingleton();
+            INSTANCE_ = new PGConnectionPool();
         }
         return INSTANCE_;
     }
 
-    private PGConnectionPoolSingleton() {
+    private PGConnectionPool() {
         source_ = new PGPoolingDataSource();
         source_.setServerName(Configuration.getProperty("db.server.name"));
         source_.setDatabaseName(Configuration.getProperty("db.database.name"));
         source_.setUser(Configuration.getProperty("db.user"));
         source_.setPassword(Configuration.getProperty("db.password"));
-        source_.setMaxConnections(Integer.getInteger(Configuration.getProperty("db.pool.max")));
-        source_.setInitialConnections(Integer.getInteger(Configuration.getProperty("db.pool.initial")));
+        source_.setMaxConnections(Integer.parseInt(Configuration.getProperty("db.pool.max")));
+        source_.setInitialConnections(Integer.parseInt(Configuration.getProperty("db.pool.initial")));
     }
 
     public Connection getConnection() {

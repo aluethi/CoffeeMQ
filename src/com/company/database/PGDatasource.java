@@ -1,5 +1,6 @@
 package com.company.database;
 
+import com.company.exception.QueueCreationException;
 import com.company.model.Message;
 import com.company.model.Queue;
 
@@ -17,31 +18,34 @@ import java.util.logging.Logger;
  */
 public class PGDatasource implements IDatasource {
 
+    private static Logger LOGGER_ = Logger.getLogger(PGDatasource.class.getCanonicalName());
+
     private Connection con_;
     private CallableStatement cst_;
     private Statement st_;
     private ResultSet rs_;
 
     @Override
-    public void createQueue(Queue q) {
+    public void createQueue(Queue q) throws QueueCreationException {
         //Insert a new queue into table 'Queue' and return an instance of class Queue
+        Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            cst_ = con_.prepareCall("{ call createqueue(?) }");
-            cst_.setTimestamp(1, q.getCreated());
-            rs_ = cst_.executeQuery();
-            if (rs_.next()) {
-                System.out.println(rs_.getString(1));
+            CallableStatement cst = con.prepareCall("{ call createqueue(?) }");
+            cst.setTimestamp(1, q.getCreated());
+            ResultSet rs = cst.executeQuery();
+            if(rs.next()) {
+                q.setId(rs.getInt(1));
             }
-            q.setId(rs_.getInt(1));
-
-            /*st_.executeUpdate("INSERT INTO queue(created) VALUES('" + created.toString() + "')");
-            rs_ = st_.executeQuery("SELECT * From queue ORDER BY queueid DESC LIMIT 1");
-            if (rs_.next()) {
-                System.out.println(rs_.getString(1));
-            }*/
-        } catch (SQLException ex) {
-            Logger lgr = Logger.getLogger(PGDatasource.class.getName());
-            lgr.log(Level.SEVERE, ex.getMessage(), ex);
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while creating a queue");
+            throw new QueueCreationException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection.");
+                throw new RuntimeException(e);
+            }
         }
     }
 
