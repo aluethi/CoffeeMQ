@@ -1,8 +1,6 @@
 package com.company.database;
 
-import com.company.exception.ClientCreationException;
-import com.company.exception.MessageCreationException;
-import com.company.exception.QueueCreationException;
+import com.company.exception.*;
 import com.company.model.Client;
 import com.company.model.Message;
 import com.company.model.Queue;
@@ -21,15 +19,11 @@ public class DAO {
         datasource_ = datasource;
     }
 
-    private void init() {
-        datasource_.connect();
-    }
-
     public void createClient(Client c) throws ClientCreationException {
         datasource_.createClient(c);
     }
 
-    public void deleteClient(Client c) {
+    public void deleteClient(Client c) throws ClientDeletionException {
         datasource_.deleteClient(c);
     }
 
@@ -37,11 +31,11 @@ public class DAO {
             datasource_.createQueue(q);
     }
 
-    public void deleteQueue(Queue q) {
+    public void deleteQueue(Queue q) throws QueueDeletionException {
         datasource_.deleteQueue(q);
     }
 
-    public void createMessage(Message m) throws MessageCreationException {
-        datasource_.createMessage(m);
+    public void enqueueMessage(Message m) throws MessageEnqueuingException {
+        datasource_.enqueueMessage(m);
     }
 }

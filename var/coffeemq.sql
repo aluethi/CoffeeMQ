@@ -83,7 +83,7 @@ COST 100;
 ----------------
 -- create message
 ----------------
-CREATE OR REPLACE FUNCTION createMessage(sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar)
+CREATE OR REPLACE FUNCTION enqueueMessage(sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar)
 	RETURNS integer AS
 $BODY$
 declare

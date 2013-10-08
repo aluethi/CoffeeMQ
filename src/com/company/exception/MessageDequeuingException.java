@@ -7,7 +7,7 @@ package com.company.exception;
  * Time: 1:21 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MessageCreationException extends Throwable {
-    public MessageCreationException(Exception e) {
+public class MessageDequeuingException extends Throwable {
+    public MessageDequeuingException(Exception e) {
     }
 }

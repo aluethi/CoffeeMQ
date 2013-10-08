@@ -17,5 +17,9 @@ public interface IDatasource {
     void deleteClient(Client c) throws ClientDeletionException;
     void createQueue(Queue q) throws QueueCreationException;
     void deleteQueue(Queue q) throws QueueDeletionException;
-    void createMessage(Message m) throws MessageCreationException;
+    void enqueueMessage(Message m) throws MessageEnqueuingException;
+    Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeuingException;
+    Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException;
+    Message peekMessage(Queue q, boolean highestPriority) throws MessagePeekingException;
+    Message peekMessage(Queue q, Client c, boolean highestPriority) throws MessagePeekingException;
 }
