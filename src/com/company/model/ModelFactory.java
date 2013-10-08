@@ -11,12 +11,20 @@ import java.sql.*;
  */
 public class ModelFactory {
 
-    public static Queue createQueue() {
-        return createQueue(new Timestamp(System.currentTimeMillis()));
+    public static Client createClient(int id) {
+        return createClient(id, new Timestamp(System.currentTimeMillis()));
     }
 
-    public static Queue createQueue(Timestamp created) {
-        return new Queue(created);
+    public static Client createClient(int id, Timestamp created) {
+        return new Client(id, created);
+    }
+
+    public static Queue createQueue(int id) {
+        return createQueue(id, new Timestamp(System.currentTimeMillis()));
+    }
+
+    public static Queue createQueue(int id, Timestamp created) {
+        return new Queue(id, created);
     }
 
     public static Message createMessage(int sender, int receiver, int queue, int context, int priority, Timestamp created, String message) {

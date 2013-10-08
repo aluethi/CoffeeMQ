@@ -1,20 +1,20 @@
 package com.company.model;
 
-import java.sql.*;
+import java.sql.Timestamp;
 
 /**
  * Created with IntelliJ IDEA.
- * User: nano
- * Date: 10/3/13
- * Time: 9:55 AM
+ * User: Jan Marti
+ * Date: 08.10.13
+ * Time: 14:25
  * To change this template use File | Settings | File Templates.
  */
-public class Queue {
+public class Client {
 
     private int id_;
     private Timestamp created_;
 
-    public Queue(int id, Timestamp created) {
+    public Client(int id, Timestamp created) {
         id_ = id;
         created_ = created;
     }

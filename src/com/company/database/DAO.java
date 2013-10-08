@@ -1,5 +1,6 @@
 package com.company.database;
 
+import com.company.exception.QueueCreationException;
 import com.company.model.Queue;
 
 /**
@@ -20,7 +21,7 @@ public class DAO {
         datasource_.connect();
     }
 
-    public void createQueue(Queue q) {
-        datasource_.createQueue(q);
+    public void createQueue(Queue q) throws QueueCreationException {
+            datasource_.createQueue(q);
     }
 }
