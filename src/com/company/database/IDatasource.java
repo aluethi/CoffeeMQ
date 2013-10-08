@@ -1,6 +1,7 @@
 package com.company.database;
 
 import com.company.exception.ClientCreationException;
+import com.company.exception.MessageCreationException;
 import com.company.exception.QueueCreationException;
 import com.company.model.Client;
 import com.company.model.Queue;
@@ -18,7 +19,7 @@ public interface IDatasource {
     void deleteClient(Client c);
     void createQueue(Queue q) throws QueueCreationException;
     void deleteQueue(Queue q);
-    void putMessage(Queue q, Message m);
+    void createMessage(Message m) throws MessageCreationException;
 
     void connect();
     void disconnect();

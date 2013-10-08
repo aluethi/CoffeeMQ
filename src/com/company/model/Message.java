@@ -61,4 +61,8 @@ public class Message {
     public String getMessage() {
         return message_;
     }
+
+    public void setId(int id) {
+        id_ = id;
+    }
 }

@@ -79,3 +79,19 @@ end
 $BODY$
 LANGUAGE plpgsql VOLATILE
 COST 100;
+
+----------------
+-- create message
+----------------
+CREATE OR REPLACE FUNCTION createMessage(sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar)
+	RETURNS integer AS
+$BODY$
+declare
+     identifier integer;
+begin
+	INSERT INTO message("sender", "receiver", "queue", "context", "priority", "created", "message") VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING Id into identifier;
+    return identifier;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;

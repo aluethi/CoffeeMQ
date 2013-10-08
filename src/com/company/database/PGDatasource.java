@@ -1,13 +1,13 @@
 package com.company.database;
 
 import com.company.exception.ClientCreationException;
+import com.company.exception.MessageCreationException;
 import com.company.exception.QueueCreationException;
 import com.company.model.Client;
 import com.company.model.Message;
 import com.company.model.Queue;
 
 import java.sql.*;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +29,7 @@ public class PGDatasource implements IDatasource {
 
     @Override
     public void createClient(Client c) throws ClientCreationException {
-        //Insert a new queue into table 'Queue'
+        //Insert client c into table 'Client'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
             CallableStatement cst = con.prepareCall("{ call createclient(?, ?) }");
@@ -51,7 +51,7 @@ public class PGDatasource implements IDatasource {
 
     @Override
     public void deleteClient(Client c) {
-        //Delete queue from table 'Queue'
+        //Delete client c from table 'Client'
         try {
             cst_ = con_.prepareCall("{ call deleteclient(?) }");
             cst_.setInt(1, c.getId());
@@ -64,7 +64,7 @@ public class PGDatasource implements IDatasource {
 
     @Override
     public void createQueue(Queue q) throws QueueCreationException {
-        //Insert a new queue into table 'Queue'
+        //Insert queue q into table 'Queue'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
             CallableStatement cst = con.prepareCall("{ call createqueue(?, ?) }");
@@ -86,7 +86,7 @@ public class PGDatasource implements IDatasource {
 
     @Override
     public void deleteQueue(Queue q) {
-        //Delete queue from table 'Queue'
+        //Delete queue q from table 'Queue'
         try {
             cst_ = con_.prepareCall("{ call deletequeue(?) }");
             cst_.setInt(1, q.getId());
@@ -98,14 +98,32 @@ public class PGDatasource implements IDatasource {
     }
 
     @Override
-    public void putMessage(Queue q, Message m) {
-        //Insert a new message into table 'Message' with attribute 'Queue' set to the id of the respective queue
+    public void createMessage(Message m) throws MessageCreationException {
+        //Insert message m into table 'Message'
+        Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            Date created = new Date();
-            st_.executeUpdate("INSERT INTO message(queue, created, message) VALUES(" + q.getId() + ", '" + created.toString() + "', " + m.getMessage() + ")");
-        } catch (SQLException ex) {
-            Logger lgr = Logger.getLogger(PGDatasource.class.getName());
-            lgr.log(Level.SEVERE, ex.getMessage(), ex);
+            CallableStatement cst = con.prepareCall("{ call createmessage(?, ?, ?, ?, ?, ?, ?) }");
+            cst.setInt(1, m.getSender());
+            cst.setInt(2, m.getReceiver());
+            cst.setInt(3, m.getQueue());
+            cst.setInt(4, m.getContext());
+            cst.setInt(5, m.getPriority());
+            cst.setTimestamp(6, m.getCreated());
+            cst.setString(7, m.getMessage());
+            rs_ = cst.executeQuery();
+            if (rs_.next()) {
+                m.setId(rs_.getInt(1));
+            }
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while creating a message");
+            throw new MessageCreationException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection.");
+                throw new RuntimeException(e);
+            }
         }
     }
 
