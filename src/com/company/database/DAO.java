@@ -1,6 +1,10 @@
 package com.company.database;
 
+import com.company.exception.ClientCreationException;
+import com.company.exception.MessageCreationException;
 import com.company.exception.QueueCreationException;
+import com.company.model.Client;
+import com.company.model.Message;
 import com.company.model.Queue;
 
 /**
@@ -21,7 +25,23 @@ public class DAO {
         datasource_.connect();
     }
 
+    public void createClient(Client c) throws ClientCreationException {
+        datasource_.createClient(c);
+    }
+
+    public void deleteClient(Client c) {
+        datasource_.deleteClient(c);
+    }
+
     public void createQueue(Queue q) throws QueueCreationException {
-        datasource_.createQueue(q);
+            datasource_.createQueue(q);
+    }
+
+    public void deleteQueue(Queue q) {
+        datasource_.deleteQueue(q);
+    }
+
+    public void createMessage(Message m) throws MessageCreationException {
+        datasource_.createMessage(m);
     }
 }
