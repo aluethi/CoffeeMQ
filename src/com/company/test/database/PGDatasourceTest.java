@@ -23,6 +23,16 @@ public class PGDatasourceTest {
     }
 
     @Test
+    public void testCreateClient() throws Exception {
+
+    }
+
+    @Test
+    public void testDeleteClient() throws Exception {
+
+    }
+
+    @Test
     public void testCreateQueue() throws Exception {
 
     }
@@ -33,17 +43,18 @@ public class PGDatasourceTest {
     }
 
     @Test
-    public void testPutMessage() throws Exception {
+    public void testEnqueueMessage() throws Exception {
 
     }
 
     @Test
-    public void testConnect() throws Exception {
+    public void testDequeueMessage() throws Exception {
 
     }
 
     @Test
-    public void testDisconnect() throws Exception {
+    public void testPeekMessage() throws Exception {
 
     }
+
 }
