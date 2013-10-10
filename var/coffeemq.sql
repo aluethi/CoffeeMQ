@@ -81,9 +81,56 @@ LANGUAGE plpgsql VOLATILE
 COST 100;
 
 ----------------
--- create message
+-- enqueue message
 ----------------
 CREATE OR REPLACE FUNCTION enqueueMessage(sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar)
+	RETURNS integer AS
+$BODY$
+declare
+     identifier integer;
+begin
+	INSERT INTO message("sender", "receiver", "queue", "context", "priority", "created", "message") VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING Id into identifier;
+    return identifier;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- dequeue oldest message
+----------------
+CREATE OR REPLACE FUNCTION dequeueOldestMessage(q integer)
+    RETURNS record AS
+$BODY$
+declare
+     rec record;
+begin
+	SELECT * INTO rec FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
+	DELETE FROM message WHERE id = rec.id;
+	return rec;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+CREATE OR REPLACE FUNCTION dequeueOldestMessage(q integer)
+    RETURNS TABLE(id integer, sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar) AS
+$BODY$
+declare
+	message_row message%ROWTYPE;
+begin
+	RETURN QUERY SELECT * INTO message_row FROM message WHERE message.queue = $1 ORDER BY created ASC LIMIT 1;
+	DELETE FROM message WHERE id = message_row.id;
+	RETURN;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- dequeue oldest message with highest priority
+----------------
+CREATE OR REPLACE FUNCTION dequeueOldestMessageWithHighestPriority(sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar)
 	RETURNS integer AS
 $BODY$
 declare

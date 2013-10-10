@@ -25,7 +25,7 @@ public class PGDatasource implements IDatasource {
         //Insert client c into table 'Client'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call createclient(?, ?) }");
+            CallableStatement cst = con.prepareCall("{ call createClient(?, ?) }");
             cst.setInt(1, c.getId());
             cst.setTimestamp(2, c.getCreated());
             cst.execute();
@@ -48,7 +48,7 @@ public class PGDatasource implements IDatasource {
         //Delete client c from table 'Client'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call deleteclient(?) }");
+            CallableStatement cst = con.prepareCall("{ call deleteClient(?) }");
             cst.setInt(1, c.getId());
             cst.execute();
             cst.close();
@@ -70,7 +70,7 @@ public class PGDatasource implements IDatasource {
         //Insert queue q into table 'Queue'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call createqueue(?, ?) }");
+            CallableStatement cst = con.prepareCall("{ call createQueue(?, ?) }");
             cst.setInt(1, q.getId());
             cst.setTimestamp(2, q.getCreated());
             cst.execute();
@@ -93,7 +93,7 @@ public class PGDatasource implements IDatasource {
         //Delete queue q from table 'Queue'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call deletequeue(?) }");
+            CallableStatement cst = con.prepareCall("{ call deleteQueue(?) }");
             cst.setInt(1, q.getId());
             cst.execute();
             cst.close();
@@ -115,7 +115,7 @@ public class PGDatasource implements IDatasource {
         //Insert message m into table 'Message'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call enqueuemessage(?, ?, ?, ?, ?, ?, ?) }");
+            CallableStatement cst = con.prepareCall("{ call enqueueMessage(?, ?, ?, ?, ?, ?, ?) }");
             cst.setInt(1, m.getSender());
             cst.setInt(2, m.getReceiver());
             cst.setInt(3, m.getQueue());
@@ -147,21 +147,32 @@ public class PGDatasource implements IDatasource {
         //Get and delete oldest message m in queue q from table 'Message' in case highestPriority = false
         //Get and delete message m with highest priority in queue q from table 'Message' in case highestPriority = true
         Connection con = PGConnectionPool.getInstance().getConnection();
+        CallableStatement cst;
+        ResultSet rs;
         try {
-            CallableStatement cst = con.prepareCall("{ call dequeuemessage(?) }");
-            /*cst.setInt(1, m.getSender());
-            cst.setInt(2, m.getReceiver());
-            cst.setInt(3, m.getQueue());
-            cst.setInt(4, m.getContext());
-            cst.setInt(5, m.getPriority());
-            cst.setTimestamp(6, m.getCreated());
-            cst.setString(7, m.getMessage());
-            ResultSet rs = cst.executeQuery();
-            if (rs.next()) {
-                m.setId(rs.getInt(1));
+            if (!highestPriority) {
+                cst = con.prepareCall("{ call dequeueOldestMessage(?) }");
+                cst.setInt(1, q.getId());
+                /*cst.registerOutParameter(1, Types.INTEGER);
+                cst.registerOutParameter(2, Types.INTEGER);
+                cst.registerOutParameter(3, Types.INTEGER);
+                cst.registerOutParameter(4, Types.INTEGER);
+                cst.registerOutParameter(5, Types.INTEGER);
+                cst.registerOutParameter(6, Types.INTEGER);
+                cst.registerOutParameter(7, Types.TIMESTAMP);
+                cst.registerOutParameter(8, Types.VARCHAR);*/
+
+                rs = cst.executeQuery();
+
+                if (rs.next()) {
+                    //
+                }
+                cst.close();
+                rs.close();
+
+            } else {
+                //cst = con.prepareCall("{ call dequeueOldestMessageWithHighestPriority(?) }");
             }
-            cst.close();
-            rs.close();*/
             return null;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while dequeuing a message");

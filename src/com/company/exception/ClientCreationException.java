@@ -7,7 +7,7 @@ package com.company.exception;
  * Time: 1:21 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ClientCreationException extends Throwable {
+public class ClientCreationException extends Exception {
     public ClientCreationException(Exception e) {
     }
 }

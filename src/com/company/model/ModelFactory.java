@@ -27,6 +27,10 @@ public class ModelFactory {
         return new Queue(id, created);
     }
 
+    public static Message createMessage(int sender, int receiver, int queue, int context, int priority, String message) {
+        return new Message(sender, receiver, queue, context, priority, new Timestamp(System.currentTimeMillis()), message);
+    }
+
     public static Message createMessage(int sender, int receiver, int queue, int context, int priority, Timestamp created, String message) {
         return new Message(sender, receiver, queue, context, priority, created, message);
     }
