@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.Socket;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.*;
 
@@ -25,7 +27,8 @@ public class AcceptorTest {
         /**
          * Set up an acceptor that listens on localhost:5555.
          */
-        acc_ = new Acceptor("localhost", 5555);
+        Executor executor = Executors.newFixedThreadPool(10);
+        acc_ = new Acceptor("localhost", 5555, executor);
         new Thread(acc_).start();
     }
 
