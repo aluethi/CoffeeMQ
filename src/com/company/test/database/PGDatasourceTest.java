@@ -46,7 +46,7 @@ public class PGDatasourceTest {
     public static void tearDown() throws Exception {
         //Truncate all tables
         Connection con = PGConnectionPool.getInstance().getConnection();
-        CallableStatement cst = con.prepareCall("TRUNCATE TABLE client, message, queue");
+        CallableStatement cst = con.prepareCall("TRUNCATE TABLE client, queue");
         cst.execute();
         cst.close();
         con.close();
@@ -81,12 +81,40 @@ public class PGDatasourceTest {
 
     @Test
     public void testDequeueMessage() throws Exception {
-        ds.dequeueMessage(q, false);
+        /*Message returnedMessage = ds.dequeueMessage(q, false);
+        System.out.println("id of dequeued message: '" + returnedMessage.getId() + "'");
+
+        Message returnedMessageHp = ds.dequeueMessage(q, true);
+        System.out.println("id of dequeued message (hp): '" + returnedMessageHp.getId() + "'");
+
+        Message returnedMessageFromSender = ds.dequeueMessage(q, s, false);
+        System.out.println("id of dequeued message from s: '" + returnedMessageFromSender.getId() + "'");
+
+        Message returnedMessageFromSenderHp = ds.dequeueMessage(q, s, true);
+        System.out.println("id of dequeued message from s (hp): '" + returnedMessageFromSenderHp.getId() + "'");*/
+
+        /*System.out.println("sender of dequeued message: '" + returnedMessage.getSender() + "'");
+        System.out.println("receiver of dequeued message: '" + returnedMessage.getReceiver() + "'");
+        System.out.println("queue of dequeued message: '" + returnedMessage.getQueue() + "'");
+        System.out.println("context of dequeued message: '" + returnedMessage.getContext() + "'");
+        System.out.println("priority of dequeued message: '" + returnedMessage.getPriority() + "'");
+        System.out.println("created of dequeued message: '" + returnedMessage.getCreated().toString() + "'");
+        System.out.println("message of dequeued message: '" + returnedMessage.getMessage() + "'");*/
     }
 
     @Test
     public void testPeekMessage() throws Exception {
+        Message returnedMessage = ds.peekMessage(q, false);
+        System.out.println("id of peeked message: '" + returnedMessage.getId() + "'");
 
+        Message returnedMessageHp = ds.peekMessage(q, true);
+        System.out.println("id of peeked message (hp): '" + returnedMessageHp.getId() + "'");
+
+        Message returnedMessageFromSender = ds.peekMessage(q, s, false);
+        System.out.println("id of peeked message from s: '" + returnedMessageFromSender.getId() + "'");
+
+        Message returnedMessageFromSenderHp = ds.peekMessage(q, s, true);
+        System.out.println("id of peeked message from s (hp): '" + returnedMessageFromSenderHp.getId() + "'");
     }
 
 }

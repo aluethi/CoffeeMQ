@@ -100,28 +100,14 @@ COST 100;
 -- dequeue oldest message
 ----------------
 CREATE OR REPLACE FUNCTION dequeueOldestMessage(q integer)
-    RETURNS record AS
+    RETURNS message AS
 $BODY$
 declare
-     rec record;
+     result_record message;
 begin
-	SELECT * INTO rec FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
-	DELETE FROM message WHERE id = rec.id;
-	return rec;
-end
-$BODY$
-LANGUAGE plpgsql VOLATILE
-COST 100;
-
-CREATE OR REPLACE FUNCTION dequeueOldestMessage(q integer)
-    RETURNS TABLE(id integer, sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar) AS
-$BODY$
-declare
-	message_row message%ROWTYPE;
-begin
-	RETURN QUERY SELECT * INTO message_row FROM message WHERE message.queue = $1 ORDER BY created ASC LIMIT 1;
-	DELETE FROM message WHERE id = message_row.id;
-	RETURN;
+	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
+	DELETE FROM message WHERE id = result_record.id;
+	return result_record;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -130,14 +116,113 @@ COST 100;
 ----------------
 -- dequeue oldest message with highest priority
 ----------------
-CREATE OR REPLACE FUNCTION dequeueOldestMessageWithHighestPriority(sender integer, receiver integer, queue integer, context integer, priority integer, created timestamp, message varchar)
-	RETURNS integer AS
+CREATE OR REPLACE FUNCTION dequeueOldestMessageWithHighestPriority(q integer)
+    RETURNS message AS
 $BODY$
 declare
-     identifier integer;
+     result_record message;
 begin
-	INSERT INTO message("sender", "receiver", "queue", "context", "priority", "created", "message") VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING Id into identifier;
-    return identifier;
+	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY priority ASC, created ASC LIMIT 1;
+	DELETE FROM message WHERE id = result_record.id;
+	return result_record;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- dequeue oldest message from sender
+----------------
+CREATE OR REPLACE FUNCTION dequeueOldestMessageFromSender(q integer, s integer)
+    RETURNS message AS
+$BODY$
+declare
+     result_record message;
+begin
+	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY created ASC LIMIT 1;
+	DELETE FROM message WHERE id = result_record.id;
+	return result_record;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- dequeue oldest message from sender with highest priority
+----------------
+CREATE OR REPLACE FUNCTION dequeueOldestMessageFromSenderWithHighestPriority(q integer, s integer)
+    RETURNS message AS
+$BODY$
+declare
+     result_record message;
+begin
+	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY priority ASC, created ASC LIMIT 1;
+	DELETE FROM message WHERE id = result_record.id;
+	return result_record;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- peek oldest message
+----------------
+CREATE OR REPLACE FUNCTION peekOldestMessage(q integer)
+    RETURNS message AS
+$BODY$
+declare
+     result_record message;
+begin
+	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
+	return result_record;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- peek oldest message with highest priority
+----------------
+CREATE OR REPLACE FUNCTION peekOldestMessageWithHighestPriority(q integer)
+    RETURNS message AS
+$BODY$
+declare
+     result_record message;
+begin
+	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY priority ASC, created ASC LIMIT 1;
+	return result_record;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- peek oldest message from sender
+----------------
+CREATE OR REPLACE FUNCTION peekOldestMessageFromSender(q integer, s integer)
+    RETURNS message AS
+$BODY$
+declare
+     result_record message;
+begin
+	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY created ASC LIMIT 1;
+	return result_record;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- peek oldest message from sender with highest priority
+----------------
+CREATE OR REPLACE FUNCTION peekOldestMessageFromSenderWithHighestPriority(q integer, s integer)
+    RETURNS message AS
+$BODY$
+declare
+     result_record message;
+begin
+	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY priority ASC, created ASC LIMIT 1;
+	return result_record;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
