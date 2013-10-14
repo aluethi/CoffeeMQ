@@ -28,7 +28,9 @@ public class PGDatasourceTest {
     private static PGDatasource ds;
     private static Client s; //Sender
     private static Client r; //Receiver
+    private static Client d;
     private static Queue q;
+    private static Queue q1;
     private  static Message m;
 
     @BeforeClass
@@ -38,7 +40,9 @@ public class PGDatasourceTest {
         ds = new PGDatasource();
         s = ModelFactory.createClient(1);
         r = ModelFactory.createClient(2);
+        d = ModelFactory.createClient(3);
         q = ModelFactory.createQueue(1);
+        q1 = ModelFactory.createQueue(2);
         m = ModelFactory.createMessage(1, 2, 1, 1, 1, "Hallo");
     }
 
@@ -56,21 +60,23 @@ public class PGDatasourceTest {
     public void testCreateClient() throws Exception {
         ds.createClient(s);
         ds.createClient(r);
+        ds.createClient(d);
     }
 
     @Test
     public void testDeleteClient() throws Exception {
-
+        ds.deleteClient(d);
     }
 
     @Test
     public void testCreateQueue() throws Exception {
         ds.createQueue(q);
+        ds.createQueue(q1);
     }
 
     @Test
     public void testDeleteQueue() throws Exception {
-
+        ds.deleteQueue(q1);
     }
 
     @Test
@@ -81,7 +87,7 @@ public class PGDatasourceTest {
 
     @Test
     public void testDequeueMessage() throws Exception {
-        /*Message returnedMessage = ds.dequeueMessage(q, false);
+        Message returnedMessage = ds.dequeueMessage(q, false);
         System.out.println("id of dequeued message: '" + returnedMessage.getId() + "'");
 
         Message returnedMessageHp = ds.dequeueMessage(q, true);
@@ -91,7 +97,7 @@ public class PGDatasourceTest {
         System.out.println("id of dequeued message from s: '" + returnedMessageFromSender.getId() + "'");
 
         Message returnedMessageFromSenderHp = ds.dequeueMessage(q, s, true);
-        System.out.println("id of dequeued message from s (hp): '" + returnedMessageFromSenderHp.getId() + "'");*/
+        System.out.println("id of dequeued message from s (hp): '" + returnedMessageFromSenderHp.getId() + "'");
 
         /*System.out.println("sender of dequeued message: '" + returnedMessage.getSender() + "'");
         System.out.println("receiver of dequeued message: '" + returnedMessage.getReceiver() + "'");
