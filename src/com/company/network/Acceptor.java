@@ -7,6 +7,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,15 +22,19 @@ public class Acceptor implements Runnable {
 
     private static Logger LOGGER_ = Logger.getLogger(Acceptor.class.getCanonicalName());
 
+    public static Object lock_ = new Object();
+
     private Selector selector_;
     private final String host_;
     private final int port_;
     private ServerSocketChannel serverChannel_;
+    private final ExecutorService executor_;
     private boolean isRunning_;
 
-    public Acceptor(String host, int port) {
+    public Acceptor(String host, int port, ExecutorService executor) {
         host_ = host;
         port_ = port;
+        executor_ = executor;
         isRunning_ = true;
         init();
     }
@@ -42,7 +47,7 @@ public class Acceptor implements Runnable {
             serverChannel_.configureBlocking(false);
             serverChannel_.socket().bind(new InetSocketAddress(host_, port_));
             SelectionKey key = serverChannel_.register(selector_, SelectionKey.OP_ACCEPT);
-            key.attach(new AcceptorHandler(serverChannel_, selector_));
+            key.attach(new AcceptorHandler(serverChannel_, selector_, executor_));
         } catch (IOException e) {
             LOGGER_.log(Level.SEVERE, "Could not open the selector or server socket channel");
             throw new RuntimeException(e);
@@ -58,9 +63,9 @@ public class Acceptor implements Runnable {
                 Iterator<SelectionKey> it = selected.iterator();
                 while(it.hasNext()) {
                     SelectionKey key = it.next();
+                    it.remove();
                     dispatch(key);
                 }
-                selected.clear();
             } catch (IOException e) {
                 LOGGER_.log(Level.SEVERE, "Error while selecting SelectionKey");
                 throw new RuntimeException(e);
@@ -69,9 +74,9 @@ public class Acceptor implements Runnable {
     }
 
     void dispatch(SelectionKey key) {
-        LOGGER_.log(Level.INFO, "Dispatching handler");
         Handler h = (Handler) key.attachment();
         if(h != null) {
+            LOGGER_.log(Level.INFO, "Dispatching handler");
             h.run();
         }
     }

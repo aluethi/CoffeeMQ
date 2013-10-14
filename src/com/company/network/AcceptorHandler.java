@@ -5,6 +5,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,22 +22,24 @@ public class AcceptorHandler extends Handler {
 
     private final ServerSocketChannel serverChannel_;
     private final Selector selector_;
+    private final ExecutorService executor_;
 
-    public AcceptorHandler(ServerSocketChannel serverChannel, Selector selector) {
+    public AcceptorHandler(ServerSocketChannel serverChannel, Selector selector, ExecutorService executor) {
         serverChannel_ = serverChannel;
         selector_ = selector;
+        executor_ = executor;
     }
 
     @Override
     public void run() {
         try {
             SocketChannel channel = serverChannel_.accept();
-            channel.configureBlocking(false);
-            LOGGER_.log(Level.INFO, "Accepted new connection from: " + channel.socket().getRemoteSocketAddress());
             if(channel != null) {
-                SelectionKey key = channel.register(selector_, SelectionKey.OP_READ);
-                key.attach(new ClientHandler(key, channel));
+                LOGGER_.log(Level.INFO, "Accepted new connection from: " + channel.socket().getRemoteSocketAddress());
+                channel.configureBlocking(false);
                 selector_.wakeup();
+                SelectionKey key = channel.register(selector_, SelectionKey.OP_READ);
+                key.attach(new ClientHandler(key, channel, executor_));
             }
         } catch (IOException e) {
             LOGGER_.log(Level.SEVERE, "Could not open client socket channel");

@@ -4,12 +4,13 @@ import com.company.config.Configuration;
 import com.company.exception.QueueCreationException;
 import com.company.network.Acceptor;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
 
     private Acceptor acceptor_;
-    private Executor executor_;
+    private ExecutorService executor_;
 
     public static void main(String[] args) throws QueueCreationException {
         String configFilePath = "var/config.prop";
@@ -28,7 +29,8 @@ public class Main {
     }
 
     private void init() {
-        acceptor_ = new Acceptor(Configuration.getProperty("net.iface.ip"), Integer.parseInt(Configuration.getProperty("net.iface.port")));
+        executor_ = Executors.newFixedThreadPool(Integer.parseInt(Configuration.getProperty("mw.pool.max")));
+        acceptor_ = new Acceptor(Configuration.getProperty("net.iface.ip"), Integer.parseInt(Configuration.getProperty("net.iface.port")), executor_);
     }
 
     public void start() {

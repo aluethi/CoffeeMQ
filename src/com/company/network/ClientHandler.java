@@ -1,11 +1,12 @@
 package com.company.network;
 
-import com.company.ExecutionEngine;
+import com.company.core.ExecutionEngine;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,15 +23,15 @@ public class ClientHandler extends Handler {
 
     private final SocketChannel channel_;
     private final SelectionKey key_;
+    private final ExecutorService executor_;
     private ByteBuffer buffer_;
-    private ExecutionEngine engine_;
 
-    public ClientHandler(SelectionKey key, SocketChannel channel) {
+    public ClientHandler(SelectionKey key, SocketChannel channel, ExecutorService executor) {
         LOGGER_.log(Level.INFO, "Instantiating ClientHandler");
         key_ = key;
         channel_ = channel;
+        executor_ = executor;
         buffer_ = ByteBuffer.allocate(2048);
-        engine_ = new ExecutionEngine();
     }
 
     @Override
@@ -49,8 +50,16 @@ public class ClientHandler extends Handler {
             int readCount = channel_.read(buffer_);
             if(readCount > 0) {
                 // process changes buffer_ content
-                engine_.process(buffer_);
-                key_.interestOps(SelectionKey.OP_WRITE);
+                //buffer_.flip();
+                /**
+                 * Execution
+                 */
+                executor_.submit(new Client(buffer_, new ICallback() {
+                    @Override
+                    public void callback() {
+                        key_.interestOps(SelectionKey.OP_WRITE);
+                    }
+                }));
             } else {
                 channel_.close();
                 key_.cancel();
