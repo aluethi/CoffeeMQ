@@ -1,5 +1,7 @@
 package com.company;
 
+import java.nio.ByteBuffer;
+
 /**
  * Created with IntelliJ IDEA.
  * User: nano
@@ -8,4 +10,6 @@ package com.company;
  * To change this template use File | Settings | File Templates.
  */
 public class ExecutionEngine {
+    public void process(ByteBuffer buffer_) {
+    }
 }

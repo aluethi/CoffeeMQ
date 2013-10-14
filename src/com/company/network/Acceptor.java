@@ -2,43 +2,49 @@ package com.company.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.util.concurrent.Executor;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
  * User: nano
- * Date: 10/1/13
- * Time: 12:07 PM
+ * Date: 10/14/13
+ * Time: 1:25 PM
  * To change this template use File | Settings | File Templates.
  */
 public class Acceptor implements Runnable {
 
     private static Logger LOGGER_ = Logger.getLogger(Acceptor.class.getCanonicalName());
 
-    private String inetAddress_;
-    private int port_;
-    private Executor executor_;
-    private volatile boolean isRunning_;
+    private Selector selector_;
+    private final String host_;
+    private final int port_;
     private ServerSocketChannel serverChannel_;
+    private boolean isRunning_;
 
-    public Acceptor(String inetAddress, int port, Executor executor) {
-        inetAddress_ = inetAddress;
+    public Acceptor(String host, int port) {
+        host_ = host;
         port_ = port;
-        executor_ = executor;
+        isRunning_ = true;
         init();
     }
 
-    private void init() {
+    public void init() {
+        LOGGER_.log(Level.INFO, "Initializing Acceptor");
         try {
+            selector_ = Selector.open();
             serverChannel_ = ServerSocketChannel.open();
-            serverChannel_.configureBlocking(true);
-            serverChannel_.socket().bind(new InetSocketAddress(inetAddress_, port_));
+            serverChannel_.configureBlocking(false);
+            serverChannel_.socket().bind(new InetSocketAddress(host_, port_));
+            SelectionKey key = serverChannel_.register(selector_, SelectionKey.OP_ACCEPT);
+            key.attach(new AcceptorHandler(serverChannel_, selector_));
         } catch (IOException e) {
-            LOGGER_.log(Level.SEVERE, "Could not open the server socket channel.");
+            LOGGER_.log(Level.SEVERE, "Could not open the selector or server socket channel");
             throw new RuntimeException(e);
         }
     }
@@ -47,27 +53,26 @@ public class Acceptor implements Runnable {
     public void run() {
         while(isRunning_) {
             try {
-                SocketChannel channel = serverChannel_.accept();
-                Client c = new Client(channel);
-                executor_.execute(c);
+                selector_.select();
+                Set<SelectionKey> selected = selector_.selectedKeys();
+                Iterator<SelectionKey> it = selected.iterator();
+                while(it.hasNext()) {
+                    SelectionKey key = it.next();
+                    dispatch(key);
+                }
+                selected.clear();
             } catch (IOException e) {
-                LOGGER_.log(Level.WARNING, "Could not accept connection from client.");
+                LOGGER_.log(Level.SEVERE, "Error while selecting SelectionKey");
+                throw new RuntimeException(e);
             }
         }
     }
 
-    public void shutdown() {
-        if(isRunning_) {
-            isRunning_ = false;
+    void dispatch(SelectionKey key) {
+        LOGGER_.log(Level.INFO, "Dispatching handler");
+        Handler h = (Handler) key.attachment();
+        if(h != null) {
+            h.run();
         }
     }
-
-    String getInetAddress() {
-        return inetAddress_;
-    }
-
-    int getPort() {
-        return port_;
-    }
-
 }

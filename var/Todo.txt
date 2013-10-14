@@ -1,0 +1,2 @@
+* Transaction in stored procedures
+* Atomic message insert into multiple queues
