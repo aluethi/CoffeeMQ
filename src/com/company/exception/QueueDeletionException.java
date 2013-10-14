@@ -7,7 +7,7 @@ package com.company.exception;
  * Time: 1:21 PM
  * To change this template use File | Settings | File Templates.
  */
-public class QueueDeletionException extends Throwable {
+public class QueueDeletionException extends Exception {
     public QueueDeletionException(Exception e) {
     }
 }

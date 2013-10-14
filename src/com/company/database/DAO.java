@@ -38,4 +38,20 @@ public class DAO {
     public void enqueueMessage(Message m) throws MessageEnqueuingException {
         datasource_.enqueueMessage(m);
     }
+
+    public Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeuingException {
+        return datasource_.dequeueMessage(q, highestPriority);
+    }
+
+    public Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException {
+        return datasource_.dequeueMessage(q, c, highestPriority);
+    }
+
+    public Message peekMessage(Queue q, boolean highestPriority) throws MessageDequeuingException {
+        return datasource_.dequeueMessage(q, highestPriority);
+    }
+
+    public Message peekMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException {
+        return datasource_.dequeueMessage(q, c, highestPriority);
+    }
 }

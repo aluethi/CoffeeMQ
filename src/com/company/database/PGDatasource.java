@@ -3,6 +3,7 @@ package com.company.database;
 import com.company.exception.*;
 import com.company.model.Client;
 import com.company.model.Message;
+import com.company.model.ModelFactory;
 import com.company.model.Queue;
 
 import java.sql.*;
@@ -25,7 +26,7 @@ public class PGDatasource implements IDatasource {
         //Insert client c into table 'Client'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call createclient(?, ?) }");
+            CallableStatement cst = con.prepareCall("{ call createClient(?, ?) }");
             cst.setInt(1, c.getId());
             cst.setTimestamp(2, c.getCreated());
             cst.execute();
@@ -48,7 +49,7 @@ public class PGDatasource implements IDatasource {
         //Delete client c from table 'Client'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call deleteclient(?) }");
+            CallableStatement cst = con.prepareCall("{ call deleteClient(?) }");
             cst.setInt(1, c.getId());
             cst.execute();
             cst.close();
@@ -70,7 +71,7 @@ public class PGDatasource implements IDatasource {
         //Insert queue q into table 'Queue'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call createqueue(?, ?) }");
+            CallableStatement cst = con.prepareCall("{ call createQueue(?, ?) }");
             cst.setInt(1, q.getId());
             cst.setTimestamp(2, q.getCreated());
             cst.execute();
@@ -93,7 +94,7 @@ public class PGDatasource implements IDatasource {
         //Delete queue q from table 'Queue'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call deletequeue(?) }");
+            CallableStatement cst = con.prepareCall("{ call deleteQueue(?) }");
             cst.setInt(1, q.getId());
             cst.execute();
             cst.close();
@@ -115,7 +116,7 @@ public class PGDatasource implements IDatasource {
         //Insert message m into table 'Message'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
-            CallableStatement cst = con.prepareCall("{ call enqueuemessage(?, ?, ?, ?, ?, ?, ?) }");
+            CallableStatement cst = con.prepareCall("{ call enqueueMessage(?, ?, ?, ?, ?, ?, ?) }");
             cst.setInt(1, m.getSender());
             cst.setInt(2, m.getReceiver());
             cst.setInt(3, m.getQueue());
@@ -147,22 +148,32 @@ public class PGDatasource implements IDatasource {
         //Get and delete oldest message m in queue q from table 'Message' in case highestPriority = false
         //Get and delete message m with highest priority in queue q from table 'Message' in case highestPriority = true
         Connection con = PGConnectionPool.getInstance().getConnection();
+        CallableStatement cst;
+        ResultSet rs;
+        Message m = null;
         try {
-            CallableStatement cst = con.prepareCall("{ call dequeuemessage(?) }");
-            /*cst.setInt(1, m.getSender());
-            cst.setInt(2, m.getReceiver());
-            cst.setInt(3, m.getQueue());
-            cst.setInt(4, m.getContext());
-            cst.setInt(5, m.getPriority());
-            cst.setTimestamp(6, m.getCreated());
-            cst.setString(7, m.getMessage());
-            ResultSet rs = cst.executeQuery();
+            if (!highestPriority) {
+                cst = con.prepareCall("{ call dequeueOldestMessage(?) }");
+            } else {
+                cst = con.prepareCall("{ call dequeueOldestMessageWithHighestPriority(?) }");
+            }
+            cst.setInt(1, q.getId());
+            rs = cst.executeQuery();
             if (rs.next()) {
-                m.setId(rs.getInt(1));
+                int id = rs.getInt(1);
+                int sender = rs.getInt(2);
+                int receiver = rs.getInt(3);
+                int queue = rs.getInt(4);
+                int context = rs.getInt(5);
+                int priority = rs.getInt(6);
+                Timestamp created = rs.getTimestamp(7);
+                String message = rs.getString(8);
+                m = ModelFactory.createMessage(id, sender, receiver, queue, context, priority, created, message);
             }
             cst.close();
-            rs.close();*/
-            return null;
+            rs.close();
+
+            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while dequeuing a message");
             throw new MessageDequeuingException(e);
@@ -181,22 +192,33 @@ public class PGDatasource implements IDatasource {
         //Get and delete oldest message m from sender c in queue q from table 'Message' in case highestPriority = false
         //Get and delete message m from sender c with highest priority in queue q from table 'Message' in case highestPriority = true
         Connection con = PGConnectionPool.getInstance().getConnection();
+        CallableStatement cst;
+        ResultSet rs;
+        Message m = null;
         try {
-            CallableStatement cst = con.prepareCall("{ call dequeuemessage(?) }");
-            /*cst.setInt(1, m.getSender());
-            cst.setInt(2, m.getReceiver());
-            cst.setInt(3, m.getQueue());
-            cst.setInt(4, m.getContext());
-            cst.setInt(5, m.getPriority());
-            cst.setTimestamp(6, m.getCreated());
-            cst.setString(7, m.getMessage());
-            ResultSet rs = cst.executeQuery();
+            if (!highestPriority) {
+                cst = con.prepareCall("{ call dequeueOldestMessageFromSender(?, ?) }");
+            } else {
+                cst = con.prepareCall("{ call dequeueOldestMessageFromSenderWithHighestPriority(?, ?) }");
+            }
+            cst.setInt(1, q.getId());
+            cst.setInt(2, c.getId());
+            rs = cst.executeQuery();
             if (rs.next()) {
-                m.setId(rs.getInt(1));
+                int id = rs.getInt(1);
+                int sender = rs.getInt(2);
+                int receiver = rs.getInt(3);
+                int queue = rs.getInt(4);
+                int context = rs.getInt(5);
+                int priority = rs.getInt(6);
+                Timestamp created = rs.getTimestamp(7);
+                String message = rs.getString(8);
+                m = ModelFactory.createMessage(id, sender, receiver, queue, context, priority, created, message);
             }
             cst.close();
-            rs.close();*/
-            return null;
+            rs.close();
+
+            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while dequeuing a message");
             throw new MessageDequeuingException(e);
@@ -215,22 +237,32 @@ public class PGDatasource implements IDatasource {
         //Get oldest message m in queue q from table 'Message' in case highestPriority = false
         //Get message m with highest priority in queue q from table 'Message' in case highestPriority = true
         Connection con = PGConnectionPool.getInstance().getConnection();
+        CallableStatement cst;
+        ResultSet rs;
+        Message m = null;
         try {
-            CallableStatement cst = con.prepareCall("{ call peekmessage(?) }");
-            /*cst.setInt(1, m.getSender());
-            cst.setInt(2, m.getReceiver());
-            cst.setInt(3, m.getQueue());
-            cst.setInt(4, m.getContext());
-            cst.setInt(5, m.getPriority());
-            cst.setTimestamp(6, m.getCreated());
-            cst.setString(7, m.getMessage());
-            ResultSet rs = cst.executeQuery();
+            if (!highestPriority) {
+                cst = con.prepareCall("{ call peekOldestMessage(?) }");
+            } else {
+                cst = con.prepareCall("{ call peekOldestMessageWithHighestPriority(?) }");
+            }
+            cst.setInt(1, q.getId());
+            rs = cst.executeQuery();
             if (rs.next()) {
-                m.setId(rs.getInt(1));
+                int id = rs.getInt(1);
+                int sender = rs.getInt(2);
+                int receiver = rs.getInt(3);
+                int queue = rs.getInt(4);
+                int context = rs.getInt(5);
+                int priority = rs.getInt(6);
+                Timestamp created = rs.getTimestamp(7);
+                String message = rs.getString(8);
+                m = ModelFactory.createMessage(id, sender, receiver, queue, context, priority, created, message);
             }
             cst.close();
-            rs.close();*/
-            return null;
+            rs.close();
+
+            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while peeking a message");
             throw new MessagePeekingException(e);
@@ -249,22 +281,33 @@ public class PGDatasource implements IDatasource {
         //Get oldest message m from sender c in queue q from table 'Message' in case highestPriority = false
         //Get message m from sender c with highest priority in queue q from table 'Message' in case highestPriority = true
         Connection con = PGConnectionPool.getInstance().getConnection();
+        CallableStatement cst;
+        ResultSet rs;
+        Message m = null;
         try {
-            CallableStatement cst = con.prepareCall("{ call peekmessage(?) }"); //ToDo
-            /*cst.setInt(1, m.getSender());
-            cst.setInt(2, m.getReceiver());
-            cst.setInt(3, m.getQueue());
-            cst.setInt(4, m.getContext());
-            cst.setInt(5, m.getPriority());
-            cst.setTimestamp(6, m.getCreated());
-            cst.setString(7, m.getMessage());
-            ResultSet rs = cst.executeQuery();
+            if (!highestPriority) {
+                cst = con.prepareCall("{ call peekOldestMessageFromSender(?, ?) }");
+            } else {
+                cst = con.prepareCall("{ call peekOldestMessageFromSenderWithHighestPriority(?, ?) }");
+            }
+            cst.setInt(1, q.getId());
+            cst.setInt(2, c.getId());
+            rs = cst.executeQuery();
             if (rs.next()) {
-                m.setId(rs.getInt(1));
+                int id = rs.getInt(1);
+                int sender = rs.getInt(2);
+                int receiver = rs.getInt(3);
+                int queue = rs.getInt(4);
+                int context = rs.getInt(5);
+                int priority = rs.getInt(6);
+                Timestamp created = rs.getTimestamp(7);
+                String message = rs.getString(8);
+                m = ModelFactory.createMessage(id, sender, receiver, queue, context, priority, created, message);
             }
             cst.close();
-            rs.close();*/
-            return null;
+            rs.close();
+
+            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while peeking a message");
             throw new MessagePeekingException(e);

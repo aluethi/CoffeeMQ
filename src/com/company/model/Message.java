@@ -20,6 +20,17 @@ public class Message {
     private Timestamp created_;
     private String message_;
 
+    public Message(int id, int sender, int receiver, int queue, int context, int priority, Timestamp created, String message) {
+        id_ = id;
+        sender_ = sender;
+        receiver_ = receiver;
+        queue_ = queue;
+        context_ = context;
+        priority_ = priority;
+        created_ = created;
+        message_ = message;
+    }
+
     public Message(int sender, int receiver, int queue, int context, int priority, Timestamp created, String message) {
         sender_ = sender;
         receiver_ = receiver;

@@ -9,7 +9,7 @@ import java.sql.SQLException;
  * Time: 1:21 PM
  * To change this template use File | Settings | File Templates.
  */
-public class QueueCreationException extends Throwable {
+public class QueueCreationException extends Exception {
     public QueueCreationException(Exception e) {
     }
 }

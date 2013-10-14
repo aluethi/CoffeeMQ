@@ -7,7 +7,7 @@ package com.company.exception;
  * Time: 1:21 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MessagePeekingException extends Throwable {
+public class MessagePeekingException extends Exception {
     public MessagePeekingException(Exception e) {
     }
 }
