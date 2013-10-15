@@ -79,8 +79,8 @@ public class MessageServiceImpl {
 
     public Queue getQueue(String queueId) throws NonExistentQueueException {
         try {
-            out_.write(MQProtocol.MSG_GET_QUEUE);
-            out_.write(queueId.hashCode());
+            out_.writeInt(MQProtocol.MSG_GET_QUEUE);
+            out_.writeInt(queueId.hashCode());
             out_.flush();
 
             int msgType = in_.readInt();
@@ -96,8 +96,8 @@ public class MessageServiceImpl {
 
     public void deleteQueue(String queueId) throws NonExistentQueueException {
         try {
-            out_.write(MQProtocol.MSG_DELETE_QUEUE);
-            out_.write(queueId.hashCode());
+            out_.writeInt(MQProtocol.MSG_DELETE_QUEUE);
+            out_.writeInt(queueId.hashCode());
             out_.flush();
 
             int msgType = in_.readInt();
@@ -120,13 +120,13 @@ public class MessageServiceImpl {
 
     public void put(int queueId, Message msg) throws MsgInsertionException {
         try {
-            out_.write(MQProtocol.MSG_PUT_INTO_QUEUE);
-            out_.write(queueId); //Queue
-            out_.write(clientId_); //Sender
-            out_.write(msg.getReceiver()); //Receiver
-            out_.write(msg.getContext());
-            out_.write(msg.getPriority());
-            out_.write(msg.getMessage().length());
+            out_.writeInt(MQProtocol.MSG_PUT_INTO_QUEUE);
+            out_.writeInt(queueId); //Queue
+            out_.writeInt(clientId_); //Sender
+            out_.writeInt(msg.getReceiver()); //Receiver
+            out_.writeInt(msg.getContext());
+            out_.writeInt(msg.getPriority());
+            out_.writeInt(msg.getMessage().length());
             out_.write(msg.getMessage().getBytes());
             out_.flush();
 
@@ -139,54 +139,67 @@ public class MessageServiceImpl {
         }
     }
 
-    //Gets oldest message from queue
-    public Message get(Queue q) {
+    //Gets/peeks message from queue
+    public Message get(int queueId, int senderId, boolean highestPriority, boolean peek) throws MsgRetrievalException{
         try {
-            out_.write(MQProtocol.MSG_GET_FROM_QUEUE);
-            //TODO: Write out name of queue
+            if (!peek) {
+                if (senderId == 0) {
+                    if (!highestPriority) {
+                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE);
+                    } else {
+                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE_HIGHESTPRIORITY);
+                    }
+                } else {
+                    if (!highestPriority) {
+                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE_FROMSENDER);
+                        out_.writeInt(senderId);
+                    } else {
+                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE_FROMSENDER_HIGHESTPRIORITY);
+                        out_.writeInt(senderId);
+                    }
+                }
+            } else {
+                if (senderId == 0) {
+                    if (!highestPriority) {
+                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE);
+                    } else {
+                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE_HIGHESTPRIORITY);
+                    }
+                } else {
+                    if (!highestPriority) {
+                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE_FROMSENDER);
+                        out_.writeInt(senderId);
+                    } else {
+                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE_FROMSENDER_HIGHESTPRIORITY);
+                        out_.writeInt(senderId);
+                    }
+                }
+
+            }
+
+            out_.writeInt(queueId);
             out_.flush();
 
-           //TODO: Read data and create obj
-            return null;
+            //Read data
+            int msgType = in_.readInt();
+            if(msgType != MQProtocol.STATUS_OK) {
+                throw new MsgRetrievalException();
+            }
+            int sender = in_.readInt();
+            int receiver = in_.readInt();
+            int context = in_.readInt();
+            int priority = in_.readInt();
+            int msgLength = in_.readInt();
+            byte[] message = new byte[msgLength];
+            in_.read(message, 0, msgLength);
+
+           //Create object
+            Message msg = new Message(receiver, context, priority, message.toString());
+            msg.setSender(sender);
+            return msg;
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         return null;
     }
-
-    //Gets oldest message from sender with id senderId from queue
-    public Message getFromSender(Queue q, int senderId) {
-        return null;
-    }
-
-    //Gets oldest message with highest priority from queue
-    public Message getHighestPriority(Queue q) {
-        return null;
-    }
-
-    //Gets oldest message from sender with id senderId with highest priority from queue
-    public Message getFromSenderHighestPriority(Queue q, int senderId) {
-        return null;
-    }
-
-    //Peeks (read without delete) oldest message from queue
-    public Message peek(Queue q) {
-        return null;
-    }
-
-    //Peeks (read without delete) oldest message from sender with id senderId from queue
-    public Message peekFromSender(Queue q, int senderId) {
-        return null;
-    }
-
-    //Peeks (read without delete) oldest message with highest priority from queue
-    public Message peekHighestPriority(Queue q) {
-        return null;
-    }
-
-    //Peeks (read without delete) oldest message from sender with id senderId with highest priority from queue
-    public Message peekFromSenderHighestPriority(Queue q, int senderId) {
-        return null;
-    }
-
 }

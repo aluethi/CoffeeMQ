@@ -11,6 +11,7 @@ import java.sql.Timestamp;
  */
 public class Message {
 
+    private int sender_;
     private int receiver_;
     private int context_;
     private int priority_;
@@ -21,6 +22,10 @@ public class Message {
         context_ = context;
         priority_ = priority;
         message_ = message;
+    }
+
+    public int getSender() {
+        return sender_;
     }
 
     public int getReceiver() {
@@ -37,6 +42,10 @@ public class Message {
 
     public String getMessage() {
         return message_;
+    }
+
+    public void setSender(int sender) {
+        sender_ = sender;
     }
 
     public void setReceiver(int receiver) {
