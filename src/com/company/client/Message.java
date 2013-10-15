@@ -17,8 +17,8 @@ public class Message {
     private int priority_;
     private String message_;
 
-    public Message(int receiver, int context, int priority, String message) {
-        receiver_ = receiver;
+    public Message(String receiver, int context, int priority, String message) {
+        receiver_ = receiver.hashCode();
         context_ = context;
         priority_ = priority;
         message_ = message;

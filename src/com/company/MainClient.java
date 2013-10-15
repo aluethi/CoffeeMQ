@@ -1,8 +1,9 @@
 package com.company;
 
-import com.company.client.MessageServiceImpl;
-import com.company.exception.DeregisterFailureException;
-import com.company.exception.RegisterFailureException;
+import com.company.client.Message;
+import com.company.client.MessageService;
+import com.company.client.Queue;
+import com.company.exception.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,14 +14,26 @@ import com.company.exception.RegisterFailureException;
  */
 public class MainClient {
     public static void main(String[] args) {
-        MessageServiceImpl msgService = new MessageServiceImpl("localhost", 5555);
+        MessageService msgService = new MessageService("localhost", 5555);
 
         try {
             msgService.register("Test");
+
+            Queue q1 = msgService.createQueue("Queue1");
+            Message m1 = new Message("Test", 1, 1, "Hallo Welt!");
+            q1.put(m1);
+            q1.get();
+
             msgService.deregister();
         } catch (RegisterFailureException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (DeregisterFailureException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (NonExistentQueueException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (MsgInsertionException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (MsgRetrievalException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
