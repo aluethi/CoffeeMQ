@@ -1,7 +1,10 @@
 package com.company.client;
 
 import com.company.core.MQProtocol;
-import com.company.exception.*;
+import com.company.exception.DeregisterFailureException;
+import com.company.exception.NonExistentQueueException;
+import com.company.exception.PutMsgQueueException;
+import com.company.exception.RegisterFailureException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -50,8 +53,8 @@ public class MessageServiceImpl {
 
     public void register(int clientId) throws RegisterFailureException {
         try {
-            out_.write(MQProtocol.MSG_REGISTER);
-            out_.write(clientId);
+            out_.writeInt(MQProtocol.MSG_REGISTER);
+            out_.writeInt(clientId);
             out_.flush();
 
             int msgType = in_.readInt();
@@ -65,7 +68,8 @@ public class MessageServiceImpl {
 
     public void deregister() throws DeregisterFailureException {
         try {
-            out_.write(MQProtocol.MSG_DEREGISTER);
+            out_.writeInt(MQProtocol.MSG_DEREGISTER);
+            out_.writeInt(clientId_);
             out_.flush();
 
             int msgType = in_.readInt();

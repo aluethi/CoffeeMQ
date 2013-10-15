@@ -50,10 +50,7 @@ public class ClientHandler extends Handler {
             int readCount = channel_.read(buffer_);
             if(readCount > 0) {
                 // process changes buffer_ content
-                //buffer_.flip();
-                /**
-                 * Execution
-                 */
+                buffer_.flip();
                 executor_.submit(new Client(buffer_, new ICallback() {
                     @Override
                     public void callback() {
