@@ -1,25 +1,19 @@
 package com.company;
 
 import com.company.config.Configuration;
-import com.company.database.PGConnectionPool;
 import com.company.exception.QueueCreationException;
-import com.company.model.ModelFactory;
-import com.company.model.Queue;
-
-import com.company.database.PGDatasource;
 import com.company.network.Acceptor;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class Main {
 
     private Acceptor acceptor_;
-    private Executor executor_;
+    private ExecutorService executor_;
 
     public static void main(String[] args) throws QueueCreationException {
-        String configFilePath = "config.prop";
+        String configFilePath = "var/config.prop";
 
         if(args.length > 1) {
             configFilePath = args[1];
@@ -31,7 +25,7 @@ public class Main {
     }
 
     public Main() {
-
+        init();
     }
 
     private void init() {

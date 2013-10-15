@@ -7,7 +7,7 @@ CREATE TABLE Message
     Context int,
     Priority int,
     Created timestamp,
-    Message varchar(255)
+    Message text
 );
 
 CREATE TABLE Queue
