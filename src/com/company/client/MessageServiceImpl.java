@@ -118,28 +118,26 @@ public class MessageServiceImpl {
         return null;
     }
 
-    public void put(int queueId, Message msg) throws PutMsgQueueException {
+    public void put(int queueId, Message msg) throws MsgInsertionException {
         try {
             out_.write(MQProtocol.MSG_PUT_INTO_QUEUE);
-            out_.write(queueId);
-            out_.write(clientId_);
+            out_.write(queueId); //Queue
+            out_.write(clientId_); //Sender
+            out_.write(msg.getReceiver()); //Receiver
             out_.write(msg.getContext());
             out_.write(msg.getPriority());
-            out_.writeChars(msg.getMessage());
+            out_.write(msg.getMessage().length());
+            out_.write(msg.getMessage().getBytes());
             out_.flush();
 
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
-                throw new PutMsgQueueException();
+                throw new MsgInsertionException();
             }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
-
-    /*public void put(Queue q, int receiverId, Message msg) {
-
-    }*/
 
     //Gets oldest message from queue
     public Message get(Queue q) {

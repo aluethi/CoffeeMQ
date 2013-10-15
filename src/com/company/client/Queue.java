@@ -1,5 +1,7 @@
 package com.company.client;
 
+import com.company.exception.MsgInsertionException;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Jan Marti
@@ -21,12 +23,8 @@ public class Queue {
         return id_;
     }
 
-    public void put(Message msg) {
-
-    }
-
-    public void put(int receiverId, Message msg) {
-
+    public void put(Message msg) throws MsgInsertionException {
+        msgService_.put(id_, msg);
     }
 
     //Gets oldest message from queue

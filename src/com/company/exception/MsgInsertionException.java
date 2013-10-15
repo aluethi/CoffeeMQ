@@ -7,5 +7,5 @@ package com.company.exception;
  * Time: 15:22
  * To change this template use File | Settings | File Templates.
  */
-public class PutMsgQueueException extends Throwable {
+public class MsgInsertionException extends Throwable {
 }
