@@ -1,10 +1,7 @@
 package com.company.client;
 
 import com.company.core.MQProtocol;
-import com.company.exception.DeregisterFailureException;
-import com.company.exception.NonExistentQueueException;
-import com.company.exception.PutMsgQueueException;
-import com.company.exception.RegisterFailureException;
+import com.company.exception.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -161,7 +158,7 @@ public class MessageServiceImpl {
     }
 
     //Gets/peeks message from queue
-    public Message get(int queueId, int senderId, boolean highestPriority, boolean peek) throws MsgRetrievalException{
+    public Message get(int queueId, int senderId, boolean highestPriority, boolean peek) throws MsgRetrievalException {
         try {
             if (!peek) {
                 if (senderId == 0) {

@@ -20,7 +20,7 @@ public class MainClient {
             msgService.register("Test");
 
             Queue q1 = msgService.createQueue("Queue1");
-            Message m1 = new Message("Test", 1, 1, "Hallo Welt!");
+            Message m1 = new Message("Test".hashCode(), 1, 1, "Hallo Welt!");
             q1.put(m1);
             q1.get();
 
