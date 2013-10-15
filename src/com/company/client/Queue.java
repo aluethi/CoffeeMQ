@@ -9,8 +9,16 @@ package com.company.client;
  */
 public class Queue {
 
-    public Queue() {
+    private final MessageServiceImpl msgService_;
+    private int id_;
 
+    public Queue(MessageServiceImpl msgService, int id) {
+        msgService_ = msgService;
+        id_ = id;
+    }
+
+    public int getId() {
+        return id_;
     }
 
     public void put(Message msg) {
@@ -44,6 +52,4 @@ public class Queue {
     public Message peek() {
         return null;
     }
-
-
 }

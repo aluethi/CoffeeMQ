@@ -1,5 +1,7 @@
 package com.company.client;
 
+import java.sql.Timestamp;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Jan Marti
@@ -9,9 +11,47 @@ package com.company.client;
  */
 public class Message {
 
-    public Message() {
+    private int receiver_;
+    private int context_;
+    private int priority_;
+    private String message_;
 
+    public Message(int receiver, int context, int priority, String message) {
+        receiver_ = receiver;
+        context_ = context;
+        priority_ = priority;
+        message_ = message;
     }
 
+    public int getReceiver() {
+        return receiver_;
+    }
 
+    public int getContext() {
+        return context_;
+    }
+
+    public int getPriority() {
+        return priority_;
+    }
+
+    public String getMessage() {
+        return message_;
+    }
+
+    public void setReceiver(int receiver) {
+        receiver_ = receiver;
+    }
+
+    public void setContext(int context) {
+        context_ = context;
+    }
+
+    public void setPriority(int priority) {
+        priority_ = priority;
+    }
+
+    public void setMessage(String message) {
+        message_ = message;
+    }
 }

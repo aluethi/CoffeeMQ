@@ -1,8 +1,7 @@
 package com.company.client;
 
 import com.company.core.MQProtocol;
-import com.company.exception.DeregisterFailureException;
-import com.company.exception.RegisterFailureException;
+import com.company.exception.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -27,6 +26,8 @@ public class MessageServiceImpl {
     private DataInputStream in_;
     private DataOutputStream out_;
 
+    private int clientId_;
+
     public MessageServiceImpl(String host, int port) {
         init(host, port);
     }
@@ -43,7 +44,8 @@ public class MessageServiceImpl {
     }
 
     public void register(String clientId) throws RegisterFailureException {
-        register(clientId.hashCode());
+        clientId_ = clientId.hashCode();
+        register(clientId_);
     }
 
     public void register(int clientId) throws RegisterFailureException {
@@ -75,19 +77,117 @@ public class MessageServiceImpl {
         }
     }
 
-    public Queue getQueue(String name) {
+    public Queue getQueue(String queueId) throws NonExistentQueueException {
+        try {
+            out_.write(MQProtocol.MSG_GET_QUEUE);
+            out_.write(queueId.hashCode());
+            out_.flush();
+
+            int msgType = in_.readInt();
+            if(msgType != MQProtocol.STATUS_OK) {
+                throw new NonExistentQueueException();
+            }
+            return new Queue(this, queueId.hashCode());
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         return null;
     }
 
-    public void deleteQueue(String name) {
+    public void deleteQueue(String queueId) throws NonExistentQueueException {
+        try {
+            out_.write(MQProtocol.MSG_DELETE_QUEUE);
+            out_.write(queueId.hashCode());
+            out_.flush();
 
+            int msgType = in_.readInt();
+            if(msgType != MQProtocol.STATUS_OK) {
+                throw new NonExistentQueueException();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     public void put(List<Queue> queues, Message msg) {
-
+        //TODO
     }
 
     public List<Queue> getWaitingQueues() {
+        //TODO
+        return null;
+    }
+
+    public void put(int queueId, Message msg) throws PutMsgQueueException {
+        try {
+            out_.write(MQProtocol.MSG_PUT_INTO_QUEUE);
+            out_.write(queueId);
+            out_.write(clientId_);
+            out_.write(msg.getContext());
+            out_.write(msg.getPriority());
+            out_.writeChars(msg.getMessage());
+            out_.flush();
+
+            int msgType = in_.readInt();
+            if(msgType != MQProtocol.STATUS_OK) {
+                throw new PutMsgQueueException();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
+
+    /*public void put(Queue q, int receiverId, Message msg) {
+
+    }*/
+
+    //Gets oldest message from queue
+    public Message get(Queue q) {
+        try {
+            out_.write(MQProtocol.MSG_GET_FROM_QUEUE);
+            //TODO: Write out name of queue
+            out_.flush();
+
+           //TODO: Read data and create obj
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return null;
+    }
+
+    //Gets oldest message from sender with id senderId from queue
+    public Message getFromSender(Queue q, int senderId) {
+        return null;
+    }
+
+    //Gets oldest message with highest priority from queue
+    public Message getHighestPriority(Queue q) {
+        return null;
+    }
+
+    //Gets oldest message from sender with id senderId with highest priority from queue
+    public Message getFromSenderHighestPriority(Queue q, int senderId) {
+        return null;
+    }
+
+    //Peeks (read without delete) oldest message from queue
+    public Message peek(Queue q) {
+        return null;
+    }
+
+    //Peeks (read without delete) oldest message from sender with id senderId from queue
+    public Message peekFromSender(Queue q, int senderId) {
+        return null;
+    }
+
+    //Peeks (read without delete) oldest message with highest priority from queue
+    public Message peekHighestPriority(Queue q) {
+        return null;
+    }
+
+    //Peeks (read without delete) oldest message from sender with id senderId with highest priority from queue
+    public Message peekFromSenderHighestPriority(Queue q, int senderId) {
         return null;
     }
 
