@@ -22,8 +22,6 @@ public class Acceptor implements Runnable {
 
     private static Logger LOGGER_ = Logger.getLogger(Acceptor.class.getCanonicalName());
 
-    public static Object lock_ = new Object();
-
     private Selector selector_;
     private final String host_;
     private final int port_;
