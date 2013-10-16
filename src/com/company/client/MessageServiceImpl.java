@@ -78,6 +78,23 @@ public class MessageServiceImpl {
         }
     }
 
+    public Queue createQueue(String queueId) throws NonExistentQueueException {
+        try {
+            out_.writeInt(MQProtocol.MSG_CREATE_QUEUE);
+            out_.writeInt(queueId.hashCode());
+            out_.flush();
+
+            int msgType = in_.readInt();
+            if(msgType != MQProtocol.STATUS_OK) {
+                throw new NonExistentQueueException();
+            }
+            return new Queue(this, queueId.hashCode());
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return null;
+    }
+
     public Queue getQueue(String queueId) throws NonExistentQueueException {
         try {
             out_.writeInt(MQProtocol.MSG_GET_QUEUE);

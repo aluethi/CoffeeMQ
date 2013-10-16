@@ -21,7 +21,9 @@ public class MainClient {
 
             Queue q1 = msgService.createQueue("Queue1");
             Message m1 = new Message("Test".hashCode(), 1, 1, "Hallo Welt!");
+            Message m2 = new Message("Test2".hashCode(), 1, 1, "Hallo Welt nochmal!");
             q1.put(m1);
+            q1.put(m2);
             q1.get();
 
             msgService.deregister();

@@ -41,6 +41,11 @@ public class ExecutionEngine {
                 prepareAnswer(buffer_, deregisterClient(buffer_.getInt()));
             }
             break;
+            case MQProtocol.MSG_CREATE_QUEUE:
+            {
+                prepareAnswer(buffer_, createQueue(buffer_.getInt()));
+            }
+            break;
             case MQProtocol.MSG_GET_QUEUE:
             {
                 prepareAnswer(buffer_, getQueue(buffer_.getInt()));
@@ -68,29 +73,103 @@ public class ExecutionEngine {
         }
     }
 
+    public Error registerClient(int clientId) {
+        LOGGER_.log(Level.INFO, "Registering client " + clientId);
+        try {
+            dao_.createClient(ModelFactory.createClient(clientId));
+        } catch (ClientCreationException e) {
+            return err(EC_CLIENT_CREATION_EXCEPTION);
+        }
+        return ok();
+    }
+
+    public Error deregisterClient(int clientId) {
+        // TODO: change DAO to only use clientId instead of client model to delete a client
+        LOGGER_.log(Level.INFO, "Deregistering client " + clientId);
+        try {
+            dao_.deleteClient(ModelFactory.createClient(clientId));
+        } catch (ClientDeletionException e) {
+            return err(EC_CLIENT_DELETION_EXCEPTION);
+        }
+        return ok();
+    }
+
+    public Error createQueue(int queueId) {
+        LOGGER_.log(Level.INFO, "Creating queue " + queueId);
+        try {
+            dao_.createQueue(ModelFactory.createQueue(queueId));
+        } catch (QueueCreationException e) {
+            return err(EC_QUEUE_CREATION_EXCEPTION);
+        }
+        return ok();
+    }
+
+    private Error getQueue(int queueId) {
+        LOGGER_.log(Level.INFO, "Get queue " + queueId);
+        return ok();
+    }
+
+    private Error deleteQueue(int queueId) {
+        LOGGER_.log(Level.INFO, "Delete queue " + queueId);
+        Queue q = ModelFactory.createQueue(queueId);
+        try {
+            dao_.deleteQueue(q);
+        } catch (QueueDeletionException e) {
+            return err(EC_QUEUE_DELETION_EXCEPTION);
+        }
+        return ok();
+    }
+
+    private Error put(ByteBuffer buffer) {
+        int queueId = buffer.getInt();
+        int senderId = buffer.getInt();
+        int receiverId = buffer.getInt();
+        int context = buffer.getInt();
+        int prio = buffer.getInt();
+        int msgLength = buffer.getInt();
+        byte[] msg = new byte[msgLength];
+        buffer.get(msg);
+        Message m = ModelFactory.createMessage(senderId, receiverId, queueId, context, prio, new String(msg));
+        try {
+            dao_.enqueueMessage(m);
+        } catch (MessageEnqueuingException e) {
+            return err(EC_PUT_EXCEPTION);
+        }
+        return ok();
+    }
+
     private Error get(ByteBuffer buffer) {
         int senderId = buffer.getInt();
         int prio = buffer.getInt();
         int queueId = buffer.getInt();
         Queue q = ModelFactory.createQueue(queueId);
         Client s = null;
+        Message m = null;
         if (senderId != 0) {
             s = ModelFactory.createClient(senderId);
         }
         try {
             if (senderId == 0) {
                 if (prio == 0) {
-                    dao_.dequeueMessage(q, false);
+                    m = dao_.dequeueMessage(q, false);
                 } else {
-                    dao_.dequeueMessage(q, true);
+                    m = dao_.dequeueMessage(q, true);
                 }
             } else {
                 if (prio == 0) {
-                    dao_.dequeueMessage(q, s, false);
+                    m = dao_.dequeueMessage(q, s, false);
                 } else {
-                    dao_.dequeueMessage(q, s, true);
+                    m = dao_.dequeueMessage(q, s, true);
                 }
             }
+            //Write message information back to buffer
+            buffer.clear();
+            buffer.putInt(m.getSender());
+            buffer.putInt(m.getReceiver());
+            buffer.putInt(m.getContext());
+            buffer.putInt(m.getPriority());
+            buffer.putInt(m.getMessage().length());
+            buffer.put(m.getMessage().getBytes());
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
         }
@@ -122,61 +201,6 @@ public class ExecutionEngine {
             }
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
-        }
-        return ok();
-    }
-
-    private Error put(ByteBuffer buffer) {
-        int queueId = buffer.getInt();
-        int senderId = buffer.getInt();
-        int receiverId = buffer.getInt();
-        int context = buffer.getInt();
-        int prio = buffer.getInt();
-        int msgLength = buffer.getInt();
-        byte[] msg = new byte[msgLength];
-        buffer.get(msg);
-        Message m = ModelFactory.createMessage(senderId, receiverId, queueId, context, prio, new String(msg));
-        try {
-            dao_.enqueueMessage(m);
-        } catch (MessageEnqueuingException e) {
-            return err(EC_PUT_EXCEPTION);
-        }
-        return ok();
-    }
-
-    private Error deleteQueue(int queueId) {
-        LOGGER_.log(Level.INFO, "Delete queue " + queueId);
-        Queue q = ModelFactory.createQueue(queueId);
-        try {
-            dao_.deleteQueue(q);
-        } catch (QueueDeletionException e) {
-            return err(EC_QUEUE_DELETION_EXCEPTION);
-        }
-        return ok();
-    }
-
-    private Error getQueue(int queueId) {
-        LOGGER_.log(Level.INFO, "Get queue " + queueId);
-        return ok();
-    }
-
-    public Error registerClient(int clientId) {
-        LOGGER_.log(Level.INFO, "Registering client " + clientId);
-        try {
-            dao_.createClient(ModelFactory.createClient(clientId));
-        } catch (ClientCreationException e) {
-            return err(EC_CLIENT_CREATION_EXCEPTION);
-        }
-        return ok();
-    }
-
-    public Error deregisterClient(int clientId) {
-        // TODO: change DAO to only use clientId instead of client model to delete a client
-        LOGGER_.log(Level.INFO, "Deregistering client " + clientId);
-        try {
-            dao_.deleteClient(ModelFactory.createClient(clientId));
-        } catch (ClientDeletionException e) {
-            return err(EC_CLIENT_DELETION_EXCEPTION);
         }
         return ok();
     }
