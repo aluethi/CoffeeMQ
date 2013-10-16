@@ -14,7 +14,7 @@ import com.company.exception.*;
  */
 public class MainClient {
     public static void main(String[] args) {
-        MessageService msgService = new MessageService("localhost", 5555);
+        MessageService msgService = new MessageService("127.0.0.1", 5555);
 
         try {
             msgService.register("Test");
