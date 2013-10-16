@@ -2,10 +2,8 @@ package com.company.core;
 
 import com.company.database.DAO;
 import com.company.database.PGDatasource;
-import com.company.exception.ClientCreationException;
-import com.company.exception.ClientDeletionException;
-import com.company.exception.MessageEnqueuingException;
-import com.company.exception.QueueDeletionException;
+import com.company.exception.*;
+import com.company.model.Client;
 import com.company.model.Message;
 import com.company.model.ModelFactory;
 import com.company.model.Queue;
@@ -58,16 +56,73 @@ public class ExecutionEngine {
                 prepareAnswer(buffer_, put(buffer_));
             }
             break;
-            case MQProtocol.MSG_GET: // Fall through
-            case MQProtocol.MSG_PEEK:
+            case MQProtocol.MSG_GET:
             {
                 prepareAnswer(buffer_, get(buffer_));
+            }
+            case MQProtocol.MSG_PEEK:
+            {
+                prepareAnswer(buffer_, peek(buffer_));
             }
             break;
         }
     }
 
     private Error get(ByteBuffer buffer) {
+        int senderId = buffer.getInt();
+        int prio = buffer.getInt();
+        int queueId = buffer.getInt();
+        Queue q = ModelFactory.createQueue(queueId);
+        Client s = null;
+        if (senderId != 0) {
+            s = ModelFactory.createClient(senderId);
+        }
+        try {
+            if (senderId == 0) {
+                if (prio == 0) {
+                    dao_.dequeueMessage(q, false);
+                } else {
+                    dao_.dequeueMessage(q, true);
+                }
+            } else {
+                if (prio == 0) {
+                    dao_.dequeueMessage(q, s, false);
+                } else {
+                    dao_.dequeueMessage(q, s, true);
+                }
+            }
+        } catch (MessageDequeuingException e) {
+            return err(EC_GET_EXCEPTION);
+        }
+        return ok();
+    }
+
+    private Error peek(ByteBuffer buffer) {
+        int senderId = buffer.getInt();
+        int prio = buffer.getInt();
+        int queueId = buffer.getInt();
+        Queue q = ModelFactory.createQueue(queueId);
+        Client s = null;
+        if (senderId != 0) {
+            s = ModelFactory.createClient(senderId);
+        }
+        try {
+            if (senderId == 0) {
+                if (prio == 0) {
+                    dao_.peekMessage(q, false);
+                } else {
+                    dao_.peekMessage(q, true);
+                }
+            } else {
+                if (prio == 0) {
+                    dao_.peekMessage(q, s, false);
+                } else {
+                    dao_.peekMessage(q, s, true);
+                }
+            }
+        } catch (MessageDequeuingException e) {
+            return err(EC_GET_EXCEPTION);
+        }
         return ok();
     }
 
