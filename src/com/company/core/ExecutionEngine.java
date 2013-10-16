@@ -105,8 +105,6 @@ public class ExecutionEngine {
         return ok();
     }
 
-    private Error
-
     public Error registerClient(int clientId) {
         LOGGER_.log(Level.INFO, "Registering client " + clientId);
         try {
