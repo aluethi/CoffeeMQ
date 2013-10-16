@@ -125,6 +125,7 @@ public class PGDatasource implements IDatasource {
             cst.setTimestamp(6, m.getCreated());
             cst.setString(7, m.getMessage());
             ResultSet rs = cst.executeQuery();
+            //TODO: remove
             if (rs.next()) {
                 m.setId(rs.getInt(1));
             }
