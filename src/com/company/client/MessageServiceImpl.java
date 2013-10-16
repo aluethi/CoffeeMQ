@@ -2,6 +2,7 @@ package com.company.client;
 
 import com.company.core.MQProtocol;
 import com.company.exception.DeregisterFailureException;
+import com.company.exception.MsgInsertionException;
 import com.company.exception.NonExistentQueueException;
 import com.company.exception.PutMsgQueueException;
 import com.company.exception.RegisterFailureException;
