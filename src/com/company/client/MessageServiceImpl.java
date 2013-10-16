@@ -146,8 +146,17 @@ public class MessageServiceImpl {
 
     //Gets/peeks message from queue
     public Message get(int queueId, int senderId, boolean highestPriority, boolean peek) throws MsgRetrievalException{
+
+        int getType = peek ? MQProtocol.MSG_PEEK : MQProtocol.MSG_GET;
+        int prio = highestPriority ? 0 : 1;
+
+
         try {
-            if (!peek) {
+            out_.writeInt(getType);
+            out_.writeInt(senderId);
+            out_.writeInt(prio);
+            
+ /*           if (!peek) {
                 if (senderId == 0) {
                     if (!highestPriority) {
                         out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE);
@@ -180,7 +189,7 @@ public class MessageServiceImpl {
                     }
                 }
 
-            }
+            }*/
 
             out_.writeInt(queueId);
             out_.flush();

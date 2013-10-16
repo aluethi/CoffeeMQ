@@ -15,6 +15,7 @@ public class MQProtocol {
     public static final int MSG_PUT_INTO_QUEUE = 4;
     public static final int MSG_GET = 5;
     public static final int MSG_PEEK = 6;
+
     /*public static final int MSG_GET_FROM_QUEUE = 5;
     public static final int MSG_GET_FROM_QUEUE_FROMSENDER = 6;*/
     public static final int MSG_GET_FROM_QUEUE_HIGHESTPRIORITY = 7;
