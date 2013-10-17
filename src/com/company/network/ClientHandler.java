@@ -47,20 +47,17 @@ public class ClientHandler extends Handler {
         LOGGER_.log(Level.INFO, "Reading from the network");
         try {
             buffer_.clear();
-            int readCount = channel_.read(buffer_);
-            if(readCount > 0) {
-                // process changes buffer_ content
-                buffer_.flip();
-                executor_.submit(new Client(buffer_, new ICallback() {
-                    @Override
-                    public void callback() {
-                        key_.interestOps(SelectionKey.OP_WRITE);
-                    }
-                }));
-            } else {
-                channel_.close();
-                key_.cancel();
-            }
+            while(channel_.read(buffer_) > 0);
+            // process changes buffer_ content
+            buffer_.flip();
+            executor_.submit(new Client(buffer_, new ICallback() {
+                @Override
+                public void callback() {
+                    key_.interestOps(SelectionKey.OP_WRITE);
+                }
+            }));
+            //    channel_.close();
+            //    key_.cancel();
         } catch (IOException e) {
             LOGGER_.log(Level.SEVERE, "Could not read from socket channel");
             throw new RuntimeException(e);

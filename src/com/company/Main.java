@@ -13,6 +13,11 @@ public class Main {
     private ExecutorService executor_;
 
     public static void main(String[] args) throws QueueCreationException {
+        String banner = "----------------------------\n" +
+                "| Welcome to CoffeeMQ v0.1 |\n" +
+                "----------------------------\n";
+
+        System.out.print(banner);
         String configFilePath = "var/config.prop";
 
         if(args.length > 1) {

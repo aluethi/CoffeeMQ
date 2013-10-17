@@ -17,9 +17,9 @@ public class MainClient {
         MessageService msgService = new MessageService("127.0.0.1", 5555);
 
         try {
-            msgService.register("Test");
+            msgService.register(String.valueOf(System.currentTimeMillis()));
 
-            Queue q1 = msgService.createQueue("Queue1");
+            Queue q1 = msgService.createQueue(String.valueOf(System.currentTimeMillis()));
             Message m1 = new Message("Test".hashCode(), 1, 1, "Hallo Welt!");
             Message m2 = new Message("Test2".hashCode(), 1, 1, "Hallo Welt nochmal!");
             q1.put(m1);

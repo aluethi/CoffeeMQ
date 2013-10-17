@@ -28,7 +28,9 @@ public class ExecutionEngine {
     private DAO dao_ = new DAO(new PGDatasource());
 
     public void process(ByteBuffer buffer_) {
+        LOGGER_.log(Level.INFO, "[Buffer] position: " + buffer_.position() + " limit: " + buffer_.limit());
         int msgType = buffer_.getInt();
+        LOGGER_.log(Level.INFO, "In process() with msgType: " + msgType);
 
         switch(msgType) {
             case MQProtocol.MSG_REGISTER:
@@ -235,6 +237,7 @@ public class ExecutionEngine {
 
 
     private void prepareAnswer(ByteBuffer buffer, Response response) {
+        buffer.clear();
         buffer.putInt(response.getStatus());
         if(response.getStatus() != STATUS_OK) {
             buffer.putInt(response.getErrorCode());
