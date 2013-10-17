@@ -28,9 +28,7 @@ public class ExecutionEngine {
     private DAO dao_ = new DAO(new PGDatasource());
 
     public void process(ByteBuffer buffer_) {
-        LOGGER_.log(Level.INFO, "[Buffer] position: " + buffer_.position() + " limit: " + buffer_.limit());
         int msgType = buffer_.getInt();
-        LOGGER_.log(Level.INFO, "In process() with msgType: " + msgType);
 
         switch(msgType) {
             case MQProtocol.MSG_REGISTER:
@@ -146,6 +144,7 @@ public class ExecutionEngine {
         byte[] msg = new byte[msgLength];
         buffer.get(msg);
         Message m = ModelFactory.createMessage(senderId, receiverId, queueId, context, prio, new String(msg));
+        LOGGER_.log(Level.INFO, "Put message " + m.getMessage());
         try {
             dao_.enqueueMessage(m);
         } catch (MessageEnqueuingException e) {
@@ -191,6 +190,8 @@ public class ExecutionEngine {
             buffer.putInt(m.getPriority());
             buffer.putInt(m.getMessage().getBytes().length);
             buffer.put(m.getMessage().getBytes());
+
+            LOGGER_.log(Level.INFO, "Get message " + m.getId());
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
         }
@@ -230,6 +231,8 @@ public class ExecutionEngine {
             buffer.putInt(m.getPriority());
             buffer.putInt(m.getMessage().getBytes().length);
             buffer.put(m.getMessage().getBytes());
+
+            LOGGER_.log(Level.INFO, "Peek message " + m.getId());
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
         }

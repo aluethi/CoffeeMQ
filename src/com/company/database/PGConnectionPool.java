@@ -39,7 +39,7 @@ public class PGConnectionPool {
         source_.setInitialConnections(Integer.parseInt(Configuration.getProperty("db.pool.initial")));
     }
 
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
         Connection con = null;
         try {
             con = source_.getConnection();

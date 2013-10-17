@@ -30,6 +30,7 @@ public class Client implements Runnable {
         LOGGER_.log(Level.INFO, "Processing client");
         ExecutionEngine engine = new ExecutionEngine();
         engine.process(buffer_);
+        LOGGER_.log(Level.INFO, "Processing done");
         callback_.callback();
     }
 }

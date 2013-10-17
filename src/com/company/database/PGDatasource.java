@@ -110,7 +110,6 @@ public class PGDatasource implements IDatasource {
             cst.close();
             rs.close();
 
-            return q;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while getting a queue: " + e);
             throw new GetQueueException(e);
@@ -122,6 +121,7 @@ public class PGDatasource implements IDatasource {
                 throw new RuntimeException(e);
             }
         }
+        return q;
     }
 
     @Override
@@ -212,7 +212,6 @@ public class PGDatasource implements IDatasource {
             cst.close();
             rs.close();
 
-            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while dequeuing a message");
             throw new MessageDequeuingException(e);
@@ -224,6 +223,8 @@ public class PGDatasource implements IDatasource {
                 throw new RuntimeException(e);
             }
         }
+
+        return m;
     }
 
     @Override
@@ -258,7 +259,6 @@ public class PGDatasource implements IDatasource {
             cst.close();
             rs.close();
 
-            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while dequeuing a message");
             throw new MessageDequeuingException(e);
@@ -270,6 +270,7 @@ public class PGDatasource implements IDatasource {
                 throw new RuntimeException(e);
             }
         }
+        return m;
     }
 
     @Override
@@ -302,7 +303,6 @@ public class PGDatasource implements IDatasource {
             cst.close();
             rs.close();
 
-            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while peeking a message");
             throw new MessagePeekingException(e);
@@ -314,6 +314,8 @@ public class PGDatasource implements IDatasource {
                 throw new RuntimeException(e);
             }
         }
+
+        return m;
     }
 
     @Override
@@ -347,7 +349,6 @@ public class PGDatasource implements IDatasource {
             cst.close();
             rs.close();
 
-            return m;
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while peeking a message");
             throw new MessagePeekingException(e);
@@ -359,6 +360,7 @@ public class PGDatasource implements IDatasource {
                 throw new RuntimeException(e);
             }
         }
+        return m;
     }
 
 }
