@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.company.core.Error.*;
+import static com.company.core.Response.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -63,7 +63,11 @@ public class ExecutionEngine {
             break;
             case MQProtocol.MSG_GET:
             {
-                prepareAnswer(buffer_, get(buffer_));
+                Response response = get(buffer_);
+                if(response != null) {
+                    buffer_.clear();
+                    prepareAnswer(buffer_, response);
+                }
             }
             case MQProtocol.MSG_PEEK:
             {
@@ -73,7 +77,7 @@ public class ExecutionEngine {
         }
     }
 
-    public Error registerClient(int clientId) {
+    public Response registerClient(int clientId) {
         LOGGER_.log(Level.INFO, "Registering client " + clientId);
         try {
             dao_.createClient(ModelFactory.createClient(clientId));
@@ -83,7 +87,7 @@ public class ExecutionEngine {
         return ok();
     }
 
-    public Error deregisterClient(int clientId) {
+    public Response deregisterClient(int clientId) {
         // TODO: change DAO to only use clientId instead of client model to delete a client
         LOGGER_.log(Level.INFO, "Deregistering client " + clientId);
         try {
@@ -94,7 +98,7 @@ public class ExecutionEngine {
         return ok();
     }
 
-    public Error createQueue(int queueId) {
+    public Response createQueue(int queueId) {
         LOGGER_.log(Level.INFO, "Creating queue " + queueId);
         try {
             dao_.createQueue(ModelFactory.createQueue(queueId));
@@ -104,12 +108,12 @@ public class ExecutionEngine {
         return ok();
     }
 
-    private Error getQueue(int queueId) {
+    private Response getQueue(int queueId) {
         LOGGER_.log(Level.INFO, "Get queue " + queueId);
         return ok();
     }
 
-    private Error deleteQueue(int queueId) {
+    private Response deleteQueue(int queueId) {
         LOGGER_.log(Level.INFO, "Delete queue " + queueId);
         Queue q = ModelFactory.createQueue(queueId);
         try {
@@ -120,7 +124,7 @@ public class ExecutionEngine {
         return ok();
     }
 
-    private Error put(ByteBuffer buffer) {
+    private Response put(ByteBuffer buffer) {
         int queueId = buffer.getInt();
         int senderId = buffer.getInt();
         int receiverId = buffer.getInt();
@@ -137,8 +141,12 @@ public class ExecutionEngine {
         }
         return ok();
     }
+/*
+    private Response get(ByteBuffer buffer) {
 
-    private Error get(ByteBuffer buffer) {
+    }
+*/
+    private Response get(ByteBuffer buffer) {
         int senderId = buffer.getInt();
         int prio = buffer.getInt();
         int queueId = buffer.getInt();
@@ -164,6 +172,7 @@ public class ExecutionEngine {
             }
             //Write message information back to buffer
             buffer.clear();
+            buffer.putInt(STATUS_OK);
             buffer.putInt(m.getSender());
             buffer.putInt(m.getReceiver());
             buffer.putInt(m.getContext());
@@ -173,10 +182,10 @@ public class ExecutionEngine {
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
         }
-        return ok();
+        return null;
     }
 
-    private Error peek(ByteBuffer buffer) {
+    private Response peek(ByteBuffer buffer) {
         int senderId = buffer.getInt();
         int prio = buffer.getInt();
         int queueId = buffer.getInt();
@@ -205,9 +214,11 @@ public class ExecutionEngine {
         return ok();
     }
 
-    private void prepareAnswer(ByteBuffer buffer, Error error) {
-        buffer.putInt(error.getStatus());
-        buffer.putInt(error.getErrorCode());
-    }
 
+    private void prepareAnswer(ByteBuffer buffer, Response response) {
+        buffer.putInt(response.getStatus());
+        if(response.getStatus() != STATUS_OK) {
+            buffer.putInt(response.getErrorCode());
+        }
+    }
 }

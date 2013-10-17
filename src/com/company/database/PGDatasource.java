@@ -30,9 +30,10 @@ public class PGDatasource implements IDatasource {
             cst.setInt(1, c.getId());
             cst.setTimestamp(2, c.getCreated());
             cst.execute();
+            con.commit();
             cst.close();
         } catch (SQLException e) {
-            LOGGER_.log(Level.WARNING, "There was an error while creating a client");
+            LOGGER_.log(Level.WARNING, "There was an error while creating a client: " + e);
             throw new ClientCreationException(e);
         } finally {
             try {
