@@ -46,18 +46,31 @@ public class ClientHandler extends Handler {
     public void read() {
         LOGGER_.log(Level.INFO, "Reading from the network");
         try {
-            buffer_.clear();
-            while(channel_.read(buffer_) > 0);
-            // process changes buffer_ content
-            buffer_.flip();
-            executor_.submit(new Client(buffer_, new ICallback() {
-                @Override
-                public void callback() {
-                    key_.interestOps(SelectionKey.OP_WRITE);
+                buffer_.clear();
+                int bytesRead = channel_.read(buffer_);
+                while(bytesRead < 4) {
+                    bytesRead += channel_.read(buffer_);
                 }
-            }));
-            //    channel_.close();
-            //    key_.cancel();
+                int limit = buffer_.limit();
+                int pos = buffer_.position();
+                buffer_.flip();
+                int msgSize = buffer_.getInt() + 4;
+                buffer_.limit(limit);
+                buffer_.position(pos);
+                while(bytesRead < msgSize){
+                    bytesRead += channel_.read(buffer_);
+                }
+                // process changes buffer_ content
+                buffer_.flip();
+                buffer_.position(4);
+                executor_.submit(new Client(buffer_, new ICallback() {
+                    @Override
+                    public void callback() {
+                        key_.interestOps(SelectionKey.OP_WRITE);
+                    }
+                }));
+                //    channel_.close();
+                //    key_.cancel();
         } catch (IOException e) {
             LOGGER_.log(Level.SEVERE, "Could not read from socket channel");
             throw new RuntimeException(e);

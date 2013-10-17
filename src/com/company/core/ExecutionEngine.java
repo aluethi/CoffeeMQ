@@ -71,6 +71,7 @@ public class ExecutionEngine {
                     prepareAnswer(buffer_, response);
                 }
             }
+            break;
             case MQProtocol.MSG_PEEK:
             {
                 Response response = peek(buffer_);
@@ -188,7 +189,7 @@ public class ExecutionEngine {
             buffer.putInt(m.getReceiver());
             buffer.putInt(m.getContext());
             buffer.putInt(m.getPriority());
-            buffer.putInt(m.getMessage().length());
+            buffer.putInt(m.getMessage().getBytes().length);
             buffer.put(m.getMessage().getBytes());
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
@@ -227,7 +228,7 @@ public class ExecutionEngine {
             buffer.putInt(m.getReceiver());
             buffer.putInt(m.getContext());
             buffer.putInt(m.getPriority());
-            buffer.putInt(m.getMessage().length());
+            buffer.putInt(m.getMessage().getBytes().length);
             buffer.put(m.getMessage().getBytes());
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
