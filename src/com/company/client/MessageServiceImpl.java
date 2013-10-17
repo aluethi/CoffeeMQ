@@ -26,10 +26,14 @@ public class MessageServiceImpl {
     private DataInputStream in_;
     private DataOutputStream out_;
 
+    private String host_;
+    private int port_;
+
     private int clientId_;
 
     public MessageServiceImpl(String host, int port) {
-        init(host, port);
+        host_ = host;
+        port_ = port;
     }
 
     public void init(String host, int port) {
@@ -43,13 +47,21 @@ public class MessageServiceImpl {
         }
     }
 
+    private void tearDown() throws IOException {
+        in_.close();
+        out_.close();
+        socket_.close();
+    }
+
     public void register(String clientId) throws RegisterFailureException {
+        init(host_, port_);
         clientId_ = clientId.hashCode();
         register(clientId_);
     }
 
     public void register(int clientId) throws RegisterFailureException {
         try {
+            out_.writeInt(8); //Size
             out_.writeInt(MQProtocol.MSG_REGISTER);
             out_.writeInt(clientId);
             out_.flush();
@@ -66,6 +78,7 @@ public class MessageServiceImpl {
 
     public void deregister() throws DeregisterFailureException {
         try {
+            out_.writeInt(8); //Size
             out_.writeInt(MQProtocol.MSG_DEREGISTER);
             out_.writeInt(clientId_);
             out_.flush();
@@ -75,6 +88,7 @@ public class MessageServiceImpl {
                 int errorCode = in_.readInt();
                 throw new DeregisterFailureException();
             }
+            tearDown();
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -82,6 +96,7 @@ public class MessageServiceImpl {
 
     public Queue createQueue(String queueId) throws NonExistentQueueException {
         try {
+            out_.writeInt(8); //Size
             out_.writeInt(MQProtocol.MSG_CREATE_QUEUE);
             out_.writeInt(queueId.hashCode());
             out_.flush();
@@ -100,6 +115,7 @@ public class MessageServiceImpl {
 
     public Queue getQueue(String queueId) throws NonExistentQueueException {
         try {
+            out_.writeInt(8); //Size
             out_.writeInt(MQProtocol.MSG_GET_QUEUE);
             out_.writeInt(queueId.hashCode());
             out_.flush();
@@ -118,6 +134,7 @@ public class MessageServiceImpl {
 
     public void deleteQueue(String queueId) throws NonExistentQueueException {
         try {
+            out_.writeInt(8); //Size
             out_.writeInt(MQProtocol.MSG_DELETE_QUEUE);
             out_.writeInt(queueId.hashCode());
             out_.flush();
@@ -143,13 +160,14 @@ public class MessageServiceImpl {
 
     public void put(int queueId, Message msg) throws MsgInsertionException {
         try {
+            out_.writeInt(28 + msg.getMessage().getBytes().length); //Size
             out_.writeInt(MQProtocol.MSG_PUT_INTO_QUEUE);
             out_.writeInt(queueId); //Queue
             out_.writeInt(clientId_); //Sender
             out_.writeInt(msg.getReceiver()); //Receiver
             out_.writeInt(msg.getContext());
             out_.writeInt(msg.getPriority());
-            out_.writeInt(msg.getMessage().length());
+            out_.writeInt(msg.getMessage().getBytes().length);
             out_.write(msg.getMessage().getBytes());
             out_.flush();
 
@@ -206,6 +224,7 @@ public class MessageServiceImpl {
 
             }*/
 
+            out_.writeInt(16); //Size
             out_.writeInt(getType);
             out_.writeInt(senderId);
             out_.writeInt(prio);
@@ -227,7 +246,7 @@ public class MessageServiceImpl {
             in_.read(message, 0, msgLength);
 
            //Create object
-            Message msg = new Message(receiver, context, priority, message.toString());
+            Message msg = new Message(receiver, context, priority, new String(message));
             msg.setSender(sender);
             return msg;
         } catch (IOException e) {

@@ -14,7 +14,7 @@ import com.company.exception.*;
  */
 public class MainClient {
     public static void main(String[] args) {
-        MessageService msgService = new MessageService("127.0.0.1", 5555);
+        MessageService msgService = new MessageService("10.2.63.100", 5555);
 
         try {
             msgService.register(String.valueOf(System.currentTimeMillis()));
@@ -24,7 +24,8 @@ public class MainClient {
             Message m2 = new Message("Test2".hashCode(), 1, 1, "Hallo Welt nochmal!");
             q1.put(m1);
             q1.put(m2);
-            q1.get();
+            Message msg = q1.get();
+            q1.put(msg);
 
             msgService.deregister();
         } catch (RegisterFailureException e) {
