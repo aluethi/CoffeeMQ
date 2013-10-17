@@ -38,6 +38,22 @@ LANGUAGE plpgsql VOLATILE
 COST 100;
 
 ----------------
+-- get queue
+----------------
+CREATE OR REPLACE FUNCTION getQueue(id integer)
+	RETURNS queue AS
+$BODY$
+declare
+    result_record queue;
+begin
+	SELECT * FROM queue INTO result_record WHERE Id = $1;
+	return result_record;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
 -- delete queue
 ----------------
 CREATE OR REPLACE FUNCTION deleteQueue(identifier integer)

@@ -16,10 +16,11 @@ public class Response {
 
     public static int EC_CLIENT_CREATION_EXCEPTION = 0;
     public static int EC_CLIENT_DELETION_EXCEPTION = 1;
-    public static int EC_QUEUE_CREATION_EXCEPTION = 2;
-    public static int EC_QUEUE_DELETION_EXCEPTION = 3;
-    public static int EC_PUT_EXCEPTION = 4;
-    public static int EC_GET_EXCEPTION = 5;
+    public static int EC_QUEUE_GET_EXCEPTION = 2;
+    public static int EC_QUEUE_CREATION_EXCEPTION = 3;
+    public static int EC_QUEUE_DELETION_EXCEPTION = 4;
+    public static int EC_PUT_EXCEPTION = 5;
+    public static int EC_GET_EXCEPTION = 6;
 
     private int status_ = 0;
     private int errorCode_ = 0;

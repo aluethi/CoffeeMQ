@@ -53,6 +53,7 @@ public class PGDatasource implements IDatasource {
             CallableStatement cst = con.prepareCall("{ call deleteClient(?) }");
             cst.setInt(1, c.getId());
             cst.execute();
+            con.commit();
             cst.close();
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while deleting a client");
@@ -76,10 +77,43 @@ public class PGDatasource implements IDatasource {
             cst.setInt(1, q.getId());
             cst.setTimestamp(2, q.getCreated());
             cst.execute();
+            con.commit();
             cst.close();
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while creating a queue");
             throw new QueueCreationException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection.");
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public Queue getQueue(int id) throws GetQueueException {
+        //Insert queue q into table 'Queue'
+        Connection con = PGConnectionPool.getInstance().getConnection();
+        ResultSet rs;
+        Queue q = null;
+        try {
+            CallableStatement cst = con.prepareCall("{ call getQueue(?) }");
+            cst.setInt(1, id);
+            rs = cst.executeQuery();
+            if (rs.next()) {
+                int qid = rs.getInt(1);
+                Timestamp created = rs.getTimestamp(2);
+                q = ModelFactory.createQueue(qid, created);
+            }
+            cst.close();
+            rs.close();
+
+            return q;
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while creating a queue");
+            throw new GetQueueException(e);
         } finally {
             try {
                 con.close();
@@ -98,6 +132,7 @@ public class PGDatasource implements IDatasource {
             CallableStatement cst = con.prepareCall("{ call deleteQueue(?) }");
             cst.setInt(1, q.getId());
             cst.execute();
+            con.commit();
             cst.close();
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while deleting a queue");
@@ -130,6 +165,7 @@ public class PGDatasource implements IDatasource {
             if (rs.next()) {
                 m.setId(rs.getInt(1));
             }
+            con.commit();
             cst.close();
             rs.close();
         } catch (SQLException e) {
@@ -172,6 +208,7 @@ public class PGDatasource implements IDatasource {
                 String message = rs.getString(8);
                 m = ModelFactory.createMessage(id, sender, receiver, queue, context, priority, created, message);
             }
+            con.commit();
             cst.close();
             rs.close();
 
@@ -217,6 +254,7 @@ public class PGDatasource implements IDatasource {
                 String message = rs.getString(8);
                 m = ModelFactory.createMessage(id, sender, receiver, queue, context, priority, created, message);
             }
+            con.commit();
             cst.close();
             rs.close();
 

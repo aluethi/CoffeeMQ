@@ -31,6 +31,10 @@ public class DAO {
             datasource_.createQueue(q);
     }
 
+    public Queue getQueue(int id) throws GetQueueException {
+        return datasource_.getQueue(id);
+    }
+
     public void deleteQueue(Queue q) throws QueueDeletionException {
         datasource_.deleteQueue(q);
     }

@@ -114,6 +114,11 @@ public class ExecutionEngine {
 
     private Response getQueue(int queueId) {
         LOGGER_.log(Level.INFO, "Get queue " + queueId);
+        try {
+            dao_.getQueue(queueId);
+        } catch (GetQueueException e) {
+            return err(EC_QUEUE_GET_EXCEPTION);
+        }
         return ok();
     }
 

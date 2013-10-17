@@ -56,6 +56,7 @@ public class MessageServiceImpl {
 
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
+                int errorCode = in_.readInt();
                 throw new RegisterFailureException();
             }
         } catch (IOException e) {
@@ -71,6 +72,7 @@ public class MessageServiceImpl {
 
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
+                int errorCode = in_.readInt();
                 throw new DeregisterFailureException();
             }
         } catch (IOException e) {
@@ -86,6 +88,7 @@ public class MessageServiceImpl {
 
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
+                int errorCode = in_.readInt();
                 throw new NonExistentQueueException();
             }
             return new Queue(this, queueId.hashCode());
@@ -103,6 +106,7 @@ public class MessageServiceImpl {
 
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
+                int errorCode = in_.readInt();
                 throw new NonExistentQueueException();
             }
             return new Queue(this, queueId.hashCode());
@@ -120,6 +124,7 @@ public class MessageServiceImpl {
 
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
+                int errorCode = in_.readInt();
                 throw new NonExistentQueueException();
             }
         } catch (IOException e) {
@@ -150,6 +155,7 @@ public class MessageServiceImpl {
 
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
+                int errorCode = in_.readInt();
                 throw new MsgInsertionException();
             }
         } catch (IOException e) {
@@ -209,6 +215,7 @@ public class MessageServiceImpl {
             //Read data
             int msgType = in_.readInt();
             if(msgType != MQProtocol.STATUS_OK) {
+                int errorCode = in_.readInt();
                 throw new MsgRetrievalException();
             }
             int sender = in_.readInt();
