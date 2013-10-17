@@ -112,13 +112,13 @@ public class PGDatasource implements IDatasource {
 
             return q;
         } catch (SQLException e) {
-            LOGGER_.log(Level.WARNING, "There was an error while creating a queue");
+            LOGGER_.log(Level.WARNING, "There was an error while getting a queue: " + e);
             throw new GetQueueException(e);
         } finally {
             try {
                 con.close();
             } catch (SQLException e) {
-                LOGGER_.log(Level.SEVERE, "Error while closing the database connection.");
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection. " + e);
                 throw new RuntimeException(e);
             }
         }

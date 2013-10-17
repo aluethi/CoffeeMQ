@@ -40,7 +40,7 @@ COST 100;
 ----------------
 -- get queue
 ----------------
-CREATE OR REPLACE FUNCTION getQueue(id integer)
+CREATE OR REPLACE FUNCTION getQueue(identifier integer)
 	RETURNS queue AS
 $BODY$
 declare

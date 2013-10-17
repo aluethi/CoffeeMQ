@@ -46,14 +46,14 @@ public class MainClient implements Runnable {
             service.register("service client");
             for(int i = 0; i < clientCount_; i++)
                 service.createQueue("queue" + i);
-            service.deregister();
+            //service.deregister();
         } catch (RegisterFailureException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (NonExistentQueueException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (DeregisterFailureException e) {
+        } /*catch (DeregisterFailureException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        }*/
 
         for(int i = 0; i < clientCount_; i++) {
             producers_[i] = new Producer(host_, port_, "client"+(i*2), "queue"+i);
@@ -76,7 +76,7 @@ public class MainClient implements Runnable {
         long endTime = System.currentTimeMillis() + runningTime_ * 1000;
         while(endTime > System.currentTimeMillis()) {
             try {
-                wait(1000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
@@ -143,7 +143,7 @@ public class MainClient implements Runnable {
                     Message m = q_.get();
                     consumeCounter++;
                     int thinkTime = rand_.nextInt(500) + 500;
-                    wait(thinkTime);
+                    Thread.sleep(thinkTime);
                 } catch (MsgRetrievalException e) {
                     System.out.println("Message could not be retrieved.");
                 } catch (InterruptedException e) {
@@ -170,7 +170,7 @@ public class MainClient implements Runnable {
                     q_.put(m);
                     producedCounter++;
                     int thinkTime = rand_.nextInt(500) + 500;
-                    wait(thinkTime);
+                    Thread.sleep(thinkTime);
                 } catch (MsgInsertionException e) {
                     System.out.println("Message could not be inserted.");
                 } catch (InterruptedException e) {
