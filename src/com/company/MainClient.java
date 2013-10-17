@@ -5,6 +5,12 @@ import com.company.client.MessageService;
 import com.company.client.Queue;
 import com.company.exception.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -26,7 +32,7 @@ public class MainClient implements Runnable {
 
     public static void main(String[] args) {
         String host = "";
-        MainClient m = new MainClient(host, 5555, 25, 60*1);
+        MainClient m = new MainClient(host, 5555, 10, 20);
         new Thread(m).start();
     }
 
@@ -76,7 +82,9 @@ public class MainClient implements Runnable {
         long endTime = System.currentTimeMillis() + runningTime_ * 1000;
         while(endTime > System.currentTimeMillis()) {
             try {
-                Thread.sleep(1000);
+                synchronized (this) {
+                    wait(1000);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
@@ -88,12 +96,17 @@ public class MainClient implements Runnable {
 
         protected volatile boolean isRunning_ = true;
 
+        protected int maxThinkTime_ = 200;
+
         protected final String clientId_;
         protected final String queueId_;
         protected final String host_;
         protected final int port_;
         protected MessageService service_;
         protected Queue q_;
+
+        protected List<Long> timestamps_ = new LinkedList<Long>();
+        protected List<Long> responseTimes_ = new LinkedList<Long>();
 
         public ClientThread(String host, int port, String clientId, String queueId) {
             clientId_ = clientId;
@@ -112,6 +125,22 @@ public class MainClient implements Runnable {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             } catch (NonExistentQueueException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+
+        public void dumpTimes(String namePrefix) {
+            File file = new File("var/"+namePrefix+"-"+clientId_+".csv");
+            if(!file.exists()) {
+                try {
+                    file.createNewFile();
+                    BufferedWriter out = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+                    for(int i = 0; i < timestamps_.size(); i++) {
+                        out.write(timestamps_.get(i)+","+responseTimes_.get(i)+"\n");
+                    }
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
         }
 
@@ -140,10 +169,16 @@ public class MainClient implements Runnable {
         public void run() {
             while(isRunning_) {
                 try {
+                    long timestamp = System.currentTimeMillis();
                     Message m = q_.get();
+                    long responseTime = System.currentTimeMillis() - timestamp;
+                    timestamps_.add(timestamp);
+                    responseTimes_.add(responseTime);
                     consumeCounter++;
-                    int thinkTime = rand_.nextInt(500) + 500;
-                    Thread.sleep(thinkTime);
+                    int thinkTime = rand_.nextInt(maxThinkTime_);
+                    synchronized (this) {
+                        wait(thinkTime);
+                    }
                 } catch (MsgRetrievalException e) {
                     System.out.println("Message could not be retrieved.");
                 } catch (InterruptedException e) {
@@ -151,6 +186,7 @@ public class MainClient implements Runnable {
                 }
             }
             tearDown();
+            dumpTimes("consumer");
         }
     }
 
@@ -167,10 +203,16 @@ public class MainClient implements Runnable {
             while(isRunning_) {
             Message m = new Message(0, 0, 0, "Hallo Herr Klaus, wie gehts Ihrer Katze nach dem Unfall mit der Motorsäge? (Msg: " + producedCounter + ")");
                 try {
+                    long timestamp = System.currentTimeMillis();
                     q_.put(m);
+                    long responseTime = System.currentTimeMillis() - timestamp;
+                    timestamps_.add(timestamp);
+                    responseTimes_.add(responseTime);
                     producedCounter++;
-                    int thinkTime = rand_.nextInt(500) + 500;
-                    Thread.sleep(thinkTime);
+                    int thinkTime = rand_.nextInt(maxThinkTime_);
+                    synchronized (this) {
+                        wait(thinkTime);
+                    }
                 } catch (MsgInsertionException e) {
                     System.out.println("Message could not be inserted.");
                 } catch (InterruptedException e) {
@@ -178,6 +220,7 @@ public class MainClient implements Runnable {
                 }
             }
             tearDown();
+            dumpTimes("producer");
         }
     }
 
