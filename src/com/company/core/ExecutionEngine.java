@@ -71,7 +71,11 @@ public class ExecutionEngine {
             }
             case MQProtocol.MSG_PEEK:
             {
-                prepareAnswer(buffer_, peek(buffer_));
+                Response response = peek(buffer_);
+                if(response != null) {
+                    buffer_.clear();
+                    prepareAnswer(buffer_, response);
+                }
             }
             break;
         }
@@ -191,6 +195,7 @@ public class ExecutionEngine {
         int queueId = buffer.getInt();
         Queue q = ModelFactory.createQueue(queueId);
         Client s = null;
+        Message m = null;
         if (senderId != 0) {
             s = ModelFactory.createClient(senderId);
         }
@@ -208,10 +213,19 @@ public class ExecutionEngine {
                     dao_.peekMessage(q, s, true);
                 }
             }
+            //Write message information back to buffer
+            buffer.clear();
+            buffer.putInt(STATUS_OK);
+            buffer.putInt(m.getSender());
+            buffer.putInt(m.getReceiver());
+            buffer.putInt(m.getContext());
+            buffer.putInt(m.getPriority());
+            buffer.putInt(m.getMessage().length());
+            buffer.put(m.getMessage().getBytes());
         } catch (MessageDequeuingException e) {
             return err(EC_GET_EXCEPTION);
         }
-        return ok();
+        return null;
     }
 
 
