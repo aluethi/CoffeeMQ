@@ -1,4 +1,4 @@
-package com.company;
+package com.company.testframework;
 
 import com.company.client.Message;
 import com.company.client.MessageService;
@@ -63,7 +63,7 @@ public class MainClient implements Runnable {
 
         for(int i = 0; i < clientCount_; i++) {
             producers_[i] = new Producer(host_, port_, "client"+(i*2), "queue"+i);
-            //consumers_[i] = new Consumer(host_, port_, "client"+(i*2+1), "queue"+i);
+            //consumers_[i] = new com.company.testframework.Consumer(host_, port_, "client"+(i*2+1), "queue"+i);
             new Thread(producers_[i]).start();
             //new Thread(consumers_[i]).start();
         }
