@@ -7,6 +7,8 @@ import com.company.model.ModelFactory;
 import com.company.model.Queue;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -361,6 +363,147 @@ public class PGDatasource implements IDatasource {
             }
         }
         return m;
+    }
+
+    @Override
+    public int getClientCount() throws GetCountException {
+        //Get client count
+        Connection con = PGConnectionPool.getInstance().getConnection();
+        ResultSet rs;
+        int count = -1;
+        try {
+            CallableStatement cst = con.prepareCall("{ call getClientCount() }");
+            rs = cst.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            cst.close();
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while getting the client count: " + e);
+            throw new GetCountException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection. " + e);
+                throw new RuntimeException(e);
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public int getQueueCount() throws GetCountException {
+        //Get queue count
+        Connection con = PGConnectionPool.getInstance().getConnection();
+        ResultSet rs;
+        int count = -1;
+        try {
+            CallableStatement cst = con.prepareCall("{ call getQueueCount() }");
+            rs = cst.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            cst.close();
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while getting the queue count: " + e);
+            throw new GetCountException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection. " + e);
+                throw new RuntimeException(e);
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public int getMessageCount() throws GetCountException {
+        //Get message count
+        Connection con = PGConnectionPool.getInstance().getConnection();
+        ResultSet rs;
+        int count = -1;
+        try {
+            CallableStatement cst = con.prepareCall("{ call getMessageCount() }");
+            rs = cst.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            cst.close();
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while getting the message count: " + e);
+            throw new GetCountException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection. " + e);
+                throw new RuntimeException(e);
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public List<Queue> getAllQueues() throws GetAllQueuesException {
+        //Get all queues in the system
+        Connection con = PGConnectionPool.getInstance().getConnection();
+        ResultSet rs;
+        List<Queue> queues = new ArrayList<Queue>();
+        try {
+            CallableStatement cst = con.prepareCall("{ call getAllQueues() }");
+            rs = cst.executeQuery();
+            while (rs.next()) {
+               queues.add(ModelFactory.createQueue(rs.getInt(1), rs.getTimestamp(2)));
+            }
+            cst.close();
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while getting all queues: " + e);
+            throw new GetAllQueuesException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection. " + e);
+                throw new RuntimeException(e);
+            }
+        }
+        return queues;
+    }
+
+    @Override
+    public List<Message> getAllMessagesFromQueue(int id) throws GetAllMessagesFromQueueException {
+        //Get all message from queue with id
+        Connection con = PGConnectionPool.getInstance().getConnection();
+        ResultSet rs;
+        List<Message> messages = new ArrayList<Message>();
+        try {
+            CallableStatement cst = con.prepareCall("{ call getAllMessagesFromQueue(?) }");
+            cst.setInt(1, id);
+            rs = cst.executeQuery();
+            while (rs.next()) {
+                messages.add(ModelFactory.createMessage(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getTimestamp(7), rs.getString(8)));
+            }
+            cst.close();
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER_.log(Level.WARNING, "There was an error while getting all messages from a queue: " + e);
+            throw new GetAllMessagesFromQueueException(e);
+        } finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                LOGGER_.log(Level.SEVERE, "Error while closing the database connection. " + e);
+                throw new RuntimeException(e);
+            }
+        }
+        return messages;
     }
 
 }

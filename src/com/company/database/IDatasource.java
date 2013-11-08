@@ -5,6 +5,8 @@ import com.company.model.Client;
 import com.company.model.Queue;
 import com.company.model.Message;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: nano
@@ -23,4 +25,10 @@ public interface IDatasource {
     Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException;
     Message peekMessage(Queue q, boolean highestPriority) throws MessagePeekingException;
     Message peekMessage(Queue q, Client c, boolean highestPriority) throws MessagePeekingException;
+
+    int getClientCount() throws GetCountException;
+    int getQueueCount() throws GetCountException;
+    int getMessageCount() throws GetCountException;
+    List<Queue> getAllQueues() throws GetAllQueuesException;
+    List<Message> getAllMessagesFromQueue(int id) throws GetAllMessagesFromQueueException;
 }
