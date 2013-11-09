@@ -47,31 +47,31 @@ public class MessageDao {
     }
 
     public Message dequeueMessage(int queueId) throws NoMessageInQueueException, NoMessageFromSenderException, QueueDoesNotExistException, MessageDequeueingException {
-        return dequeueMessage(queueId, null, false);
+        return dequeueMessage(queueId, 0, false);
     }
 
     public Message dequeueMessage(int queueId, boolean highesPriority) throws NoMessageInQueueException, NoMessageFromSenderException, QueueDoesNotExistException, MessageDequeueingException {
-        return dequeueMessage(queueId, null, highesPriority);
+        return dequeueMessage(queueId, 0, highesPriority);
     }
 
-    public Message dequeueMessage(int queueId, Integer clientId, boolean highestPriority) throws QueueDoesNotExistException, NoMessageInQueueException, NoMessageFromSenderException, MessageDequeueingException {
+    public Message dequeueMessage(int queueId, int clientId, boolean highestPriority) throws QueueDoesNotExistException, NoMessageInQueueException, NoMessageFromSenderException, MessageDequeueingException {
         CallableStatement cst;
         try {
             if(highestPriority) {
-                if(clientId != null) {
+                if(clientId != 0) {
                     cst = con_.prepareCall("{ call dequeueOldestMessageFromSenderWithHighestPriority(?, ?) }");
                 } else {
                     cst = con_.prepareCall("{ call dequeueOldestMessageWithHighestPriority(?) }");
                 }
             } else {
-                if(clientId != null) {
+                if(clientId != 0) {
                     cst = con_.prepareCall("{ call dequeueOldestMessageFromSender(?, ?) }");
                 } else {
                     cst = con_.prepareCall("{ call dequeueOldestMessage(?) }");
                 }
             }
             cst.setInt(1, queueId);
-            if(clientId != null) {
+            if(clientId != 0) {
                 cst.setInt(2, clientId);
             }
             ResultSet rs = cst.executeQuery();
