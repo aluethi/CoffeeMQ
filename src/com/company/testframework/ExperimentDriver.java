@@ -14,13 +14,13 @@ public class ExperimentDriver {
             System.out.println("Experiment argument missing: Experiment name and host needed.");
         }
         if(args[1].equals("ScalableConsumerExperiment")) {
-            if(args.length <= 2) {
-                System.out.println("Experiment argument missing: Number of consumers needed.");
+            if(args.length <= 3) {
+                System.out.println("Experiment argument missing: Prefix of consumer name and number of consumers needed.");
             }
         }
         if(args[1].equals("ScalableProducerExperiment")) {
-            if(args.length <= 2) {
-                System.out.println("Experiment argument missing: Number of producers needed.");
+            if(args.length <= 3) {
+                System.out.println("Experiment argument missing: Prefix of producer name and number of producers needed.");
             }
         }
 

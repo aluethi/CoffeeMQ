@@ -24,9 +24,9 @@ public class ScalableProducerExperiment extends Experiment {
     @Override
     public void setUp(String[] args) {
         HOST_ = args[1];
-        producerCount_ = Integer.parseInt(args[2]);
+        producerCount_ = Integer.parseInt(args[3]);
         for (int i = 0; i < producerCount_; i++) {
-            (new Thread(new Producer("Producer" + i, "Queue" + i, 50, 25))).start();
+            (new Thread(new Producer(args[3] + "_Producer" + i, "Queue" + i, 50, 25))).start();
         }
     }
 
