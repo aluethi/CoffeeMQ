@@ -329,3 +329,88 @@ end
 $BODY$
 LANGUAGE plpgsql VOLATILE
 COST 100;
+
+----------------
+-- count clients (needed for management console)
+----------------
+
+CREATE OR REPLACE FUNCTION getClientCount()
+	RETURNS integer AS
+$BODY$
+declare
+    result_count integer;
+begin
+	SELECT COUNT(id) FROM client INTO result_count;
+	return result_count;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- count messages (needed for management console)
+----------------
+
+CREATE OR REPLACE FUNCTION getMessageCount()
+	RETURNS integer AS
+$BODY$
+declare
+    result_count integer;
+begin
+	SELECT COUNT(id) FROM message INTO result_count;
+	return result_count;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- count queues (needed for management console)
+----------------
+
+CREATE OR REPLACE FUNCTION getQueueCount()
+	RETURNS integer AS
+$BODY$
+declare
+    result_count integer;
+begin
+	SELECT COUNT(id) FROM queue INTO result_count;
+	return result_count;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- get all queues (needed for management console)
+----------------
+
+CREATE OR REPLACE FUNCTION getAllQueues()
+	RETURNS SETOF queue AS
+$BODY$
+declare
+
+begin
+	Return QUERY
+	SELECT * FROM queue;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+----------------
+-- get all messages from a queue (needed for management console)
+----------------
+
+CREATE OR REPLACE FUNCTION getAllMessagesFromQueue(q integer)
+	RETURNS SETOF message AS
+$BODY$
+declare
+
+begin
+	Return QUERY
+	SELECT * FROM message WHERE queue = $1;
+end
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;

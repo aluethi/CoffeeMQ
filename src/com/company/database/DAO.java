@@ -5,6 +5,8 @@ import com.company.model.Client;
 import com.company.model.Message;
 import com.company.model.Queue;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: nano
@@ -57,5 +59,25 @@ public class DAO {
 
     public Message peekMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException {
         return datasource_.dequeueMessage(q, c, highestPriority);
+    }
+
+    public int getClientCount() throws GetCountException {
+        return datasource_.getClientCount();
+    }
+
+    public int getQueueCount() throws GetCountException {
+        return datasource_.getQueueCount();
+    }
+
+    public int getMessageCount() throws GetCountException {
+        return datasource_.getMessageCount();
+    }
+
+    public List<Queue> getAllQueues() throws GetAllQueuesException {
+        return datasource_.getAllQueues();
+    }
+
+    public List<Message> getAllMessagesFromQueue(int id) throws GetAllMessagesFromQueueException {
+        return datasource_.getAllMessagesFromQueue(id);
     }
 }
