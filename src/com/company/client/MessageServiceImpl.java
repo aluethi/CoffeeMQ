@@ -1,6 +1,6 @@
 package com.company.client;
 
-import com.company.core.MQProtocol;
+import com.company.core.Response;
 import com.company.exception.*;
 
 import java.io.DataInputStream;
@@ -34,6 +34,7 @@ public class MessageServiceImpl {
     public MessageServiceImpl(String host, int port) {
         host_ = host;
         port_ = port;
+        init(host_, port_);
     }
 
     public void init(String host, int port) {
@@ -53,99 +54,115 @@ public class MessageServiceImpl {
         socket_.close();
     }
 
-    public void register(String clientId) throws RegisterFailureException {
-        init(host_, port_);
-        clientId_ = clientId.hashCode();
-        register(clientId_);
+    public void register(String clientId) throws RegisterFailureException, ClientExistsException {
+        register(clientId.hashCode());
     }
 
-    public void register(int clientId) throws RegisterFailureException {
+    public void register(int clientId) throws RegisterFailureException, ClientExistsException {
         try {
             out_.writeInt(8); //Size
-            out_.writeInt(MQProtocol.MSG_REGISTER);
+            out_.writeInt(Response.MSG_REGISTER);
             out_.writeInt(clientId);
             out_.flush();
 
             int msgType = in_.readInt();
-            if(msgType != MQProtocol.STATUS_OK) {
+            if(msgType != Response.STATUS_OK) {
                 int errorCode = in_.readInt();
-                throw new RegisterFailureException();
+                if(errorCode == Response.ERR_CLIENT_CREATION_EXCEPTION) {
+                    throw new RegisterFailureException();
+                } else if (errorCode == Response.ERR_CLIENT_EXISTS_EXCEPTION) {
+                    throw new ClientExistsException();
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
     }
 
-    public void deregister() throws DeregisterFailureException {
+    public void deregister() throws DeregisterFailureException, ClientDoesNotExistException {
         try {
             out_.writeInt(8); //Size
-            out_.writeInt(MQProtocol.MSG_DEREGISTER);
+            out_.writeInt(Response.MSG_DEREGISTER);
             out_.writeInt(clientId_);
             out_.flush();
 
             int msgType = in_.readInt();
-            if(msgType != MQProtocol.STATUS_OK) {
+            if(msgType != Response.STATUS_OK) {
                 int errorCode = in_.readInt();
-                throw new DeregisterFailureException();
+                if(errorCode == Response.ERR_CLIENT_DELETION_EXCEPTION) {
+                    throw new DeregisterFailureException();
+                } else if(errorCode == Response.ERR_CLIENT_DOES_NOT_EXIST_EXCEPTION) {
+                    throw new ClientDoesNotExistException();
+                }
             }
             tearDown();
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
     }
 
-    public Queue createQueue(String queueId) throws NonExistentQueueException {
+    public Queue createQueue(String queueId) throws QueueExistsException, QueueCreationException {
         try {
             out_.writeInt(8); //Size
-            out_.writeInt(MQProtocol.MSG_CREATE_QUEUE);
+            out_.writeInt(Response.MSG_CREATE_QUEUE);
             out_.writeInt(queueId.hashCode());
             out_.flush();
 
             int msgType = in_.readInt();
-            if(msgType != MQProtocol.STATUS_OK) {
+            if(msgType != Response.STATUS_OK) {
                 int errorCode = in_.readInt();
-                throw new NonExistentQueueException();
+                if(errorCode == Response.ERR_QUEUE_CREATION_EXCEPTION) {
+                    throw new QueueCreationException();
+                } else if(errorCode == Response.ERR_QUEUE_EXISTS_EXCEPTION) {
+                    throw new QueueExistsException();
+                }
             }
             return new Queue(this, queueId.hashCode());
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
-    public Queue getQueue(String queueId) throws NonExistentQueueException {
+    public Queue getQueue(String queueId) throws QueueReadException, QueueDoesNotExistException {
         try {
             out_.writeInt(8); //Size
-            out_.writeInt(MQProtocol.MSG_GET_QUEUE);
+            out_.writeInt(Response.MSG_GET_QUEUE);
             out_.writeInt(queueId.hashCode());
             out_.flush();
 
             int msgType = in_.readInt();
-            if(msgType != MQProtocol.STATUS_OK) {
+            if(msgType != Response.STATUS_OK) {
                 int errorCode = in_.readInt();
-                throw new NonExistentQueueException();
+                if(errorCode == Response.ERR_QUEUE_READ_EXCEPTION) {
+                    throw new QueueReadException();
+                } else if(errorCode == Response.ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION) {
+                    throw new QueueDoesNotExistException();
+                }
             }
             return new Queue(this, queueId.hashCode());
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
-    public void deleteQueue(String queueId) throws NonExistentQueueException {
+    public void deleteQueue(String queueId) throws QueueDeletionException, QueueDoesNotExistException {
         try {
             out_.writeInt(8); //Size
-            out_.writeInt(MQProtocol.MSG_DELETE_QUEUE);
+            out_.writeInt(Response.MSG_DELETE_QUEUE);
             out_.writeInt(queueId.hashCode());
             out_.flush();
 
             int msgType = in_.readInt();
-            if(msgType != MQProtocol.STATUS_OK) {
+            if(msgType != Response.STATUS_OK) {
                 int errorCode = in_.readInt();
-                throw new NonExistentQueueException();
+                if(errorCode == Response.ERR_QUEUE_DELETION_EXCEPTION) {
+                    throw new QueueDeletionException();
+                } else if(errorCode == Response.ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION) {
+                    throw new QueueDoesNotExistException();
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
     }
 
@@ -158,10 +175,10 @@ public class MessageServiceImpl {
         return null;
     }
 
-    public void put(int queueId, Message msg) throws MsgInsertionException {
+    public void put(int queueId, Message msg) throws MessageEnqueueingException, SenderDoesNotExistException, QueueDoesNotExistException {
         try {
             out_.writeInt(28 + msg.getMessage().getBytes().length); //Size
-            out_.writeInt(MQProtocol.MSG_PUT_INTO_QUEUE);
+            out_.writeInt(Response.MSG_PUT_INTO_QUEUE);
             out_.writeInt(queueId); //Queue
             out_.writeInt(clientId_); //Sender
             out_.writeInt(msg.getReceiver()); //Receiver
@@ -172,60 +189,28 @@ public class MessageServiceImpl {
             out_.flush();
 
             int msgType = in_.readInt();
-            if(msgType != MQProtocol.STATUS_OK) {
+            if(msgType != Response.STATUS_OK) {
                 int errorCode = in_.readInt();
-                throw new MsgInsertionException();
+                if(errorCode == Response.ERR_MESSAGE_ENQUEUEING_EXCEPTION) {
+                    throw new MessageEnqueueingException();
+                } else if(errorCode == Response.ERR_SENDER_DOES_NOT_EXIST_EXCEPTION) {
+                    throw new SenderDoesNotExistException();
+                } else if(errorCode == Response.ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION) {
+                    throw new QueueDoesNotExistException();
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
     }
 
     //Gets/peeks message from queue
-    public Message get(int queueId, int senderId, boolean highestPriority, boolean peek) throws MsgRetrievalException {
-
-        int getType = peek ? MQProtocol.MSG_PEEK : MQProtocol.MSG_GET;
+    public Message get(int queueId, int senderId, boolean highestPriority) throws MessageDequeueingException, NoMessageInQueueException, QueueDoesNotExistException, NoMessageFromSenderException {
         int prio = highestPriority ? 1 : 0;
 
-
         try {
-            /*if (!peek) {
-                if (senderId == 0) {
-                    if (!highestPriority) {
-                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE);
-                    } else {
-                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE_HIGHESTPRIORITY);
-                    }
-                } else {
-                    if (!highestPriority) {
-                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE_FROMSENDER);
-                        out_.writeInt(senderId);
-                    } else {
-                        out_.writeInt(MQProtocol.MSG_GET_FROM_QUEUE_FROMSENDER_HIGHESTPRIORITY);
-                        out_.writeInt(senderId);
-                    }
-                }
-            } else {
-                if (senderId == 0) {
-                    if (!highestPriority) {
-                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE);
-                    } else {
-                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE_HIGHESTPRIORITY);
-                    }
-                } else {
-                    if (!highestPriority) {
-                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE_FROMSENDER);
-                        out_.writeInt(senderId);
-                    } else {
-                        out_.writeInt(MQProtocol.MSG_PEEK_FROM_QUEUE_FROMSENDER_HIGHESTPRIORITY);
-                        out_.writeInt(senderId);
-                    }
-                }
-
-            }*/
-
             out_.writeInt(16); //Size
-            out_.writeInt(getType);
+            out_.writeInt(Response.MSG_GET);
             out_.writeInt(senderId);
             out_.writeInt(prio);
             out_.writeInt(queueId);
@@ -233,9 +218,17 @@ public class MessageServiceImpl {
 
             //Read data
             int msgType = in_.readInt();
-            if(msgType != MQProtocol.STATUS_OK) {
+            if(msgType != Response.STATUS_OK) {
                 int errorCode = in_.readInt();
-                throw new MsgRetrievalException();
+                if(errorCode == Response.ERR_MESSAGE_DEQUEUEING_EXCEPTION) {
+                    throw new MessageDequeueingException();
+                } else if(errorCode == Response.ERR_NO_MESSAGE_IN_QUEUE_EXCEPTION) {
+                    throw new NoMessageInQueueException();
+                } else if(errorCode == Response.ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION) {
+                    throw new QueueDoesNotExistException();
+                } else if(errorCode == Response.ERR_NO_MESSAGE_FROM_SENDER_EXCEPTION) {
+                    throw new NoMessageFromSenderException();
+                }
             }
             int sender = in_.readInt();
             int receiver = in_.readInt();
@@ -250,8 +243,49 @@ public class MessageServiceImpl {
             msg.setSender(sender);
             return msg;
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException(e);
         }
-        return null;
+    }
+
+    public Message peek(int queueId, int senderId, boolean highestPriority) throws NoMessageInQueueException, NoMessageFromSenderException, MessagePeekingException, QueueDoesNotExistException {
+        int prio = highestPriority ? 1 : 0;
+
+        try {
+            out_.writeInt(16); //Size
+            out_.writeInt(Response.MSG_PEEK);
+            out_.writeInt(senderId);
+            out_.writeInt(prio);
+            out_.writeInt(queueId);
+            out_.flush();
+
+            //Read data
+            int msgType = in_.readInt();
+            if(msgType != Response.STATUS_OK) {
+                int errorCode = in_.readInt();
+                if(errorCode == Response.ERR_NO_MESSAGE_IN_QUEUE_EXCEPTION) {
+                    throw new NoMessageInQueueException();
+                } else if(errorCode == Response.ERR_NO_MESSAGE_FROM_SENDER_EXCEPTION) {
+                    throw new NoMessageFromSenderException();
+                } else if(errorCode == Response.ERR_MESSAGE_PEEKING_EXCEPTION) {
+                    throw new MessagePeekingException();
+                } else if(errorCode == Response.ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION) {
+                    throw new QueueDoesNotExistException();
+                }
+            }
+            int sender = in_.readInt();
+            int receiver = in_.readInt();
+            int context = in_.readInt();
+            int priority = in_.readInt();
+            int msgLength = in_.readInt();
+            byte[] message = new byte[msgLength];
+            in_.read(message, 0, msgLength);
+
+            //Create object
+            Message msg = new Message(receiver, context, priority, new String(message));
+            msg.setSender(sender);
+            return msg;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

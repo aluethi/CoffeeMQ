@@ -10,4 +10,8 @@ package com.company.exception;
 public class QueueDeletionException extends Exception {
     public QueueDeletionException(Exception e) {
     }
+
+    public QueueDeletionException() {
+        
+    }
 }

@@ -56,7 +56,7 @@ public class QueueDao {
         }
     }
 
-    public void deleteQueue(int id) throws QueueDoesNotExistException, ClientDeletionException {
+    public void deleteQueue(int id) throws QueueDoesNotExistException, QueueDeletionException {
         try {
             CallableStatement cst = con_.prepareCall("{ call deleteQueue(?) }");
             cst.setInt(1, id);
@@ -66,7 +66,7 @@ public class QueueDao {
             if(e.getSQLState().equals("V2001")) { // CUSTOM: ID DOES NOT EXIST
                 throw new QueueDoesNotExistException(e);
             }
-            throw new ClientDeletionException(e);
+            throw new QueueDeletionException(e);
         }
     }
 }

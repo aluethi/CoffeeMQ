@@ -7,7 +7,11 @@ package com.company.exception;
  * Time: 1:21 PM
  * To change this template use File | Settings | File Templates.
  */
-public class MessageEnqueuingException extends Exception {
-    public MessageEnqueuingException(Exception e) {
+public class MessageEnqueueingException extends Exception {
+    public MessageEnqueueingException(Exception e) {
+    }
+
+    public MessageEnqueueingException() {
+
     }
 }

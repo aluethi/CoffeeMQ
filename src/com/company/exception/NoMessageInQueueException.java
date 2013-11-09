@@ -12,4 +12,8 @@ import java.sql.SQLException;
 public class NoMessageInQueueException extends Exception {
     public NoMessageInQueueException(SQLException e) {
     }
+
+    public NoMessageInQueueException() {
+
+    }
 }

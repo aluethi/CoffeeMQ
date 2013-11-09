@@ -12,4 +12,8 @@ import java.sql.SQLException;
 public class NoMessageFromSenderException extends Exception {
     public NoMessageFromSenderException(SQLException e) {
     }
+
+    public NoMessageFromSenderException() {
+
+    }
 }

@@ -13,4 +13,9 @@ public class ClientDoesNotExistException extends Exception {
     public ClientDoesNotExistException(SQLException e) {
         //To change body of created methods use File | Settings | File Templates.
     }
+
+    public ClientDoesNotExistException() {
+
+
+    }
 }

@@ -13,4 +13,9 @@ public class QueueReadException extends Exception {
     public QueueReadException(SQLException e) {
 
     }
+
+    public QueueReadException() {
+
+
+    }
 }

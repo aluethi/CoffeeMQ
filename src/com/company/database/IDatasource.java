@@ -20,9 +20,9 @@ public interface IDatasource {
     void createQueue(Queue q) throws QueueCreationException;
     Queue getQueue(int id) throws GetQueueException;
     void deleteQueue(Queue q) throws QueueDeletionException;
-    void enqueueMessage(Message m) throws MessageEnqueuingException;
-    Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeuingException;
-    Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException;
+    void enqueueMessage(Message m) throws MessageEnqueueingException;
+    Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeueingException;
+    Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeueingException;
     Message peekMessage(Queue q, boolean highestPriority) throws MessagePeekingException;
     Message peekMessage(Queue q, Client c, boolean highestPriority) throws MessagePeekingException;
 

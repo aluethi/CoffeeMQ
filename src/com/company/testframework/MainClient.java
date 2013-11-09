@@ -55,11 +55,13 @@ public class MainClient implements Runnable {
             //service.deregister();
         } catch (RegisterFailureException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (NonExistentQueueException e) {
+        } catch (QueueCreationException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } /*catch (DeregisterFailureException e) {
+        } catch (QueueExistsException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }*/
+        } catch (ClientExistsException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         for(int i = 0; i < clientCount_; i++) {
             producers_[i] = new Producer(host_, port_, "client"+(i*2), "queue"+i);
@@ -123,7 +125,11 @@ public class MainClient implements Runnable {
                 q_ = service_.getQueue(queueId_);
             } catch (RegisterFailureException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            } catch (NonExistentQueueException e) {
+            } catch (QueueReadException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (QueueDoesNotExistException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ClientExistsException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }
@@ -148,6 +154,8 @@ public class MainClient implements Runnable {
             try {
                 service_.deregister();
             } catch (DeregisterFailureException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ClientDoesNotExistException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }
@@ -179,11 +187,15 @@ public class MainClient implements Runnable {
                     /*synchronized (this) {
                         wait(thinkTime);
                     }*/
-                } catch (MsgRetrievalException e) {
-                    System.out.println("Message could not be retrieved.");
-                } /*catch (InterruptedException e) {
+                } catch (NoMessageInQueueException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }*/
+                } catch (QueueDoesNotExistException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (MessageDequeueingException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (NoMessageFromSenderException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
             tearDown();
             dumpTimes("consumer");
@@ -213,11 +225,13 @@ public class MainClient implements Runnable {
                     /*synchronized (this) {
                         wait(thinkTime);
                     }*/
-                } catch (MsgInsertionException e) {
-                    System.out.println("Message could not be inserted.");
-                }/* catch (InterruptedException e) {
+                } catch (SenderDoesNotExistException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }*/
+                } catch (QueueDoesNotExistException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (MessageEnqueueingException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
             tearDown();
             dumpTimes("producer");

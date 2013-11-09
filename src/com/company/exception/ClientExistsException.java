@@ -17,6 +17,10 @@ public class ClientExistsException extends Exception {
         e_ = e;
     }
 
+    public ClientExistsException() {
+
+    }
+
     public SQLException getSQLException() {
         return e_;
     }

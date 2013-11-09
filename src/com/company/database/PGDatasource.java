@@ -150,7 +150,7 @@ public class PGDatasource implements IDatasource {
     }
 
     @Override
-    public void enqueueMessage(Message m) throws MessageEnqueuingException {
+    public void enqueueMessage(Message m) throws MessageEnqueueingException {
         //Insert message m into table 'Message'
         Connection con = PGConnectionPool.getInstance().getConnection();
         try {
@@ -172,7 +172,7 @@ public class PGDatasource implements IDatasource {
             rs.close();
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while enqueuing a message");
-            throw new MessageEnqueuingException(e);
+            throw new MessageEnqueueingException(e);
         } finally {
             try {
                 con.close();
@@ -184,7 +184,7 @@ public class PGDatasource implements IDatasource {
     }
 
     @Override
-    public Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeuingException {
+    public Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeueingException {
         //Get and delete oldest message m in queue q from table 'Message' in case highestPriority = false
         //Get and delete message m with highest priority in queue q from table 'Message' in case highestPriority = true
         Connection con = PGConnectionPool.getInstance().getConnection();
@@ -216,7 +216,7 @@ public class PGDatasource implements IDatasource {
 
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while dequeuing a message");
-            throw new MessageDequeuingException(e);
+            throw new MessageDequeueingException(e);
         } finally {
             try {
                 con.close();
@@ -230,7 +230,7 @@ public class PGDatasource implements IDatasource {
     }
 
     @Override
-    public Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException {
+    public Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeueingException {
         //Get and delete oldest message m from sender c in queue q from table 'Message' in case highestPriority = false
         //Get and delete message m from sender c with highest priority in queue q from table 'Message' in case highestPriority = true
         Connection con = PGConnectionPool.getInstance().getConnection();
@@ -263,7 +263,7 @@ public class PGDatasource implements IDatasource {
 
         } catch (SQLException e) {
             LOGGER_.log(Level.WARNING, "There was an error while dequeuing a message");
-            throw new MessageDequeuingException(e);
+            throw new MessageDequeueingException(e);
         } finally {
             try {
                 con.close();

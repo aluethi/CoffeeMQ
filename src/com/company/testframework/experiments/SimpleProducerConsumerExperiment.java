@@ -1,6 +1,7 @@
 package com.company.testframework.experiments;
 
 import com.company.client.MessageService;
+import com.company.exception.ClientExistsException;
 import com.company.exception.RegisterFailureException;
 import com.company.testframework.Experiment;
 
@@ -45,6 +46,8 @@ public class SimpleProducerConsumerExperiment extends Experiment {
                 service.register(clientName);
             } catch (RegisterFailureException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ClientExistsException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }
 
@@ -66,6 +69,8 @@ public class SimpleProducerConsumerExperiment extends Experiment {
                 service = new MessageService(HOST, PORT);
                 service.register(clientName);
             } catch (RegisterFailureException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ClientExistsException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }

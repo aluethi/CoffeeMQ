@@ -12,4 +12,9 @@ import java.sql.SQLException;
 public class QueueExistsException extends Exception {
     public QueueExistsException(SQLException e) {
     }
+
+    public QueueExistsException() {
+
+
+    }
 }

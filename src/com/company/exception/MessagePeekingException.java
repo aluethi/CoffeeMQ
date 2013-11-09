@@ -10,4 +10,8 @@ package com.company.exception;
 public class MessagePeekingException extends Exception {
     public MessagePeekingException(Exception e) {
     }
+
+    public MessagePeekingException() {
+
+    }
 }

@@ -24,7 +24,7 @@ public class MessageDao {
         con_ = con;
     }
 
-    public void enqueueMessage(Message m) throws MessageEnqueuingException, QueueDoesNotExistException, SenderDoesNotExistException {
+    public void enqueueMessage(Message m) throws MessageEnqueueingException, QueueDoesNotExistException, SenderDoesNotExistException {
         try {
             CallableStatement cst = con_.prepareCall("{ call enqueueMessage(?,?,?,?,?,?,?) }");
             cst.setInt(1, m.getSender());
@@ -42,19 +42,19 @@ public class MessageDao {
             } else if(e.getSQLState().equals("V2003")) { // CUSTOM: Queue does not exist
                 throw new QueueDoesNotExistException(e);
             }
-            throw new MessageEnqueuingException(e);
+            throw new MessageEnqueueingException(e);
         }
     }
 
-    public Message dequeueMessage(int queueId) throws NoMessageInQueueException, NoMessageFromSenderException, QueueDoesNotExistException, MessageDequeuingException {
+    public Message dequeueMessage(int queueId) throws NoMessageInQueueException, NoMessageFromSenderException, QueueDoesNotExistException, MessageDequeueingException {
         return dequeueMessage(queueId, null, false);
     }
 
-    public Message dequeueMessage(int queueId, boolean highesPriority) throws NoMessageInQueueException, NoMessageFromSenderException, QueueDoesNotExistException, MessageDequeuingException {
+    public Message dequeueMessage(int queueId, boolean highesPriority) throws NoMessageInQueueException, NoMessageFromSenderException, QueueDoesNotExistException, MessageDequeueingException {
         return dequeueMessage(queueId, null, highesPriority);
     }
 
-    public Message dequeueMessage(int queueId, Integer clientId, boolean highestPriority) throws QueueDoesNotExistException, NoMessageInQueueException, NoMessageFromSenderException, MessageDequeuingException {
+    public Message dequeueMessage(int queueId, Integer clientId, boolean highestPriority) throws QueueDoesNotExistException, NoMessageInQueueException, NoMessageFromSenderException, MessageDequeueingException {
         CallableStatement cst;
         try {
             if(highestPriority) {
@@ -89,7 +89,7 @@ public class MessageDao {
             } else if (e.getSQLState().equals("V2005")) {
                 throw new NoMessageFromSenderException(e);
             }
-            throw new MessageDequeuingException(e);
+            throw new MessageDequeueingException(e);
         }
     }
 

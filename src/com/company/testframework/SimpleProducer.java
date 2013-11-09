@@ -3,9 +3,7 @@ package com.company.testframework;
 import com.company.client.Message;
 import com.company.client.MessageService;
 import com.company.client.Queue;
-import com.company.exception.MsgInsertionException;
-import com.company.exception.NonExistentQueueException;
-import com.company.exception.RegisterFailureException;
+import com.company.exception.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,9 +33,19 @@ public class SimpleProducer {
            }
        } catch (RegisterFailureException e) {
            System.out.println("Couldn't register at the message queue.");
-       } catch (NonExistentQueueException e) {
+       } catch (SenderDoesNotExistException e) {
            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-       } catch (MsgInsertionException e) {
+       } catch (QueueDoesNotExistException e) {
+           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+       } catch (MessageEnqueueingException e) {
+           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+       } catch (QueueReadException e) {
+           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+       } catch (QueueCreationException e) {
+           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+       } catch (QueueExistsException e) {
+           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+       } catch (ClientExistsException e) {
            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
        }
 

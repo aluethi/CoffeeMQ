@@ -12,4 +12,8 @@ import java.sql.SQLException;
 public class QueueCreationException extends Exception {
     public QueueCreationException(Exception e) {
     }
+
+    public QueueCreationException() {
+
+    }
 }

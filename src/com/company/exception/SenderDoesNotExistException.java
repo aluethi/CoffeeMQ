@@ -12,4 +12,8 @@ import java.sql.SQLException;
 public class SenderDoesNotExistException extends Exception {
     public SenderDoesNotExistException(SQLException e) {
     }
+
+    public SenderDoesNotExistException() {
+
+    }
 }

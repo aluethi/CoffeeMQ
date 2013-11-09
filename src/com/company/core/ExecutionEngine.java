@@ -1,14 +1,11 @@
 package com.company.core;
 
-import com.company.database.DAO;
 import com.company.database.DaoManager;
-import com.company.database.PGDatasource;
 import com.company.exception.*;
 import com.company.model.Message;
 import com.company.model.ModelFactory;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Logger;
 
 import static com.company.core.Response.*;
 
@@ -27,42 +24,30 @@ public class ExecutionEngine {
         int msgType = buffer_.getInt();
 
         switch(msgType) {
-            case MQProtocol.MSG_REGISTER:
-                prepareAnswer(buffer_, registerClient(buffer_.getInt()));
+            case Response.MSG_REGISTER:
+                registerClient(buffer_.getInt()).serialize(buffer_);
                 break;
-            case MQProtocol.MSG_DEREGISTER:
-                prepareAnswer(buffer_, deregisterClient(buffer_.getInt()));
+            case Response.MSG_DEREGISTER:
+                deregisterClient(buffer_.getInt()).serialize(buffer_);
                 break;
-            case MQProtocol.MSG_CREATE_QUEUE:
-                prepareAnswer(buffer_, createQueue(buffer_.getInt()));
+            case Response.MSG_CREATE_QUEUE:
+                createQueue(buffer_.getInt()).serialize(buffer_);
                 break;
-            case MQProtocol.MSG_GET_QUEUE:
-                prepareAnswer(buffer_, getQueue(buffer_.getInt()));
+            case Response.MSG_GET_QUEUE:
+                getQueue(buffer_.getInt()).serialize(buffer_);
                 break;
-            case MQProtocol.MSG_DELETE_QUEUE:
-                prepareAnswer(buffer_, deleteQueue(buffer_.getInt()));
+            case Response.MSG_DELETE_QUEUE:
+                deleteQueue(buffer_.getInt()).serialize(buffer_);
                 break;
-            case MQProtocol.MSG_PUT_INTO_QUEUE:
-                prepareAnswer(buffer_, put(buffer_));
+            case Response.MSG_PUT_INTO_QUEUE:
+                put(buffer_).serialize(buffer_);
                 break;
-            case MQProtocol.MSG_GET:
-            {
-                Response response = get(buffer_);
-                if(response != null) {
-                    buffer_.clear();
-                    prepareAnswer(buffer_, response);
-                }
-            }
-            break;
-            case MQProtocol.MSG_PEEK:
-            {
-                Response response = peek(buffer_);
-                if(response != null) {
-                    buffer_.clear();
-                    prepareAnswer(buffer_, response);
-                }
-            }
-            break;
+            case Response.MSG_GET:
+                get(buffer_).serialize(buffer_);
+                break;
+            case Response.MSG_PEEK:
+                peek(buffer_).serialize(buffer_);
+                break;
         }
     }
 
@@ -74,10 +59,10 @@ public class ExecutionEngine {
             manager_.endTransaction();
         } catch (ClientCreationException e) {
             manager_.abortTransaction();
-            return err(EC_CLIENT_CREATION_EXCEPTION);
+            return err(ERR_CLIENT_CREATION_EXCEPTION);
         } catch (ClientExistsException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_CLIENT_EXISTS_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
@@ -92,10 +77,10 @@ public class ExecutionEngine {
             manager_.endTransaction();
         } catch (ClientDeletionException e) {
             manager_.abortTransaction();
-            return err(EC_CLIENT_DELETION_EXCEPTION);
+            return err(ERR_CLIENT_DELETION_EXCEPTION);
         } catch (ClientDoesNotExistException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_CLIENT_DOES_NOT_EXIST_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
@@ -110,10 +95,10 @@ public class ExecutionEngine {
             manager_.endTransaction();
         } catch (QueueCreationException e) {
             manager_.abortTransaction();
-            return err(EC_QUEUE_CREATION_EXCEPTION);
+            return err(ERR_QUEUE_CREATION_EXCEPTION);
         } catch (QueueExistsException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_QUEUE_EXISTS_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
@@ -128,10 +113,10 @@ public class ExecutionEngine {
             manager_.endTransaction();
         } catch (QueueReadException e) {
             manager_.abortTransaction();
-            return err(EC_QUEUE_GET_EXCEPTION);
+            return err(ERR_QUEUE_READ_EXCEPTION);
         } catch (QueueDoesNotExistException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
@@ -144,12 +129,12 @@ public class ExecutionEngine {
             manager_.beginTransaction();
             manager_.getQueueDao().deleteQueue(queueId);
             manager_.endTransaction();
-        } catch (ClientDeletionException e) {
+        } catch (QueueDeletionException e) {
             manager_.abortTransaction();
-            return err(EC_QUEUE_DELETION_EXCEPTION);
+            return err(ERR_QUEUE_DELETION_EXCEPTION);
         } catch (QueueDoesNotExistException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
@@ -171,13 +156,15 @@ public class ExecutionEngine {
             manager_.beginTransaction();
             manager_.getMessageDao().enqueueMessage(m);
             manager_.endTransaction();
-        } catch (MessageEnqueuingException e) {
+        } catch (MessageEnqueueingException e) {
             manager_.abortTransaction();
-            return err(EC_PUT_EXCEPTION);
+            return err(ERR_MESSAGE_ENQUEUEING_EXCEPTION);
         } catch (SenderDoesNotExistException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            manager_.abortTransaction();
+            return err(ERR_SENDER_DOES_NOT_EXIST_EXCEPTION);
         } catch (QueueDoesNotExistException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            manager_.abortTransaction();
+            return err(ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
@@ -193,33 +180,23 @@ public class ExecutionEngine {
         manager_.beginTransaction();
         try {
             m = manager_.getMessageDao().dequeueMessage(queueId, senderId, (prio != 0));
-            //Write message information back to buffer
-            buffer.clear();
-            buffer.putInt(STATUS_OK);
-            buffer.putInt(m.getSender());
-            buffer.putInt(m.getReceiver());
-            buffer.putInt(m.getContext());
-            buffer.putInt(m.getPriority());
-            buffer.putInt(m.getMessage().getBytes().length);
-            buffer.put(m.getMessage().getBytes());
             manager_.endTransaction();
-            return ok();
-        } catch (MessageDequeuingException e) {
+        } catch (MessageDequeueingException e) {
             manager_.abortTransaction();
-            return err(EC_GET_EXCEPTION);
+            return err(ERR_MESSAGE_DEQUEUEING_EXCEPTION);
         } catch (NoMessageInQueueException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_NO_MESSAGE_IN_QUEUE_EXCEPTION);
         } catch (QueueDoesNotExistException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION);
         } catch (NoMessageFromSenderException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_NO_MESSAGE_FROM_SENDER_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
-        return null;
+        return ok(m);
     }
 
     private Response peek(ByteBuffer buffer) {
@@ -231,41 +208,23 @@ public class ExecutionEngine {
         manager_.beginTransaction();
         try {
             m = manager_.getMessageDao().peekMessage(queueId, senderId, (prio != 0));
-            //Write message information back to buffer
-            buffer.clear();
-            buffer.putInt(STATUS_OK);
-            buffer.putInt(m.getSender());
-            buffer.putInt(m.getReceiver());
-            buffer.putInt(m.getContext());
-            buffer.putInt(m.getPriority());
-            buffer.putInt(m.getMessage().getBytes().length);
-            buffer.put(m.getMessage().getBytes());
             manager_.endTransaction();
-            return ok();
         } catch (NoMessageInQueueException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_NO_MESSAGE_IN_QUEUE_EXCEPTION);
         } catch (NoMessageFromSenderException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_NO_MESSAGE_FROM_SENDER_EXCEPTION);
         } catch (MessagePeekingException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_MESSAGE_PEEKING_EXCEPTION);
         } catch (QueueDoesNotExistException e) {
             manager_.abortTransaction();
-            // TODO
+            return err(ERR_QUEUE_DOES_NOT_EXIST_EXCEPTION);
         } finally {
             manager_.endConnectionScope();
         }
-        return null;
+        return ok(m);
     }
 
-
-    private void prepareAnswer(ByteBuffer buffer, Response response) {
-        buffer.clear();
-        buffer.putInt(response.getStatus());
-        if(response.getStatus() != STATUS_OK) {
-            buffer.putInt(response.getErrorCode());
-        }
-    }
 }

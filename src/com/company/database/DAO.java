@@ -41,23 +41,23 @@ public class DAO {
         datasource_.deleteQueue(q);
     }
 
-    public void enqueueMessage(Message m) throws MessageEnqueuingException {
+    public void enqueueMessage(Message m) throws MessageEnqueueingException {
         datasource_.enqueueMessage(m);
     }
 
-    public Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeuingException {
+    public Message dequeueMessage(Queue q, boolean highestPriority) throws MessageDequeueingException {
         return datasource_.dequeueMessage(q, highestPriority);
     }
 
-    public Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException {
+    public Message dequeueMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeueingException {
         return datasource_.dequeueMessage(q, c, highestPriority);
     }
 
-    public Message peekMessage(Queue q, boolean highestPriority) throws MessageDequeuingException {
+    public Message peekMessage(Queue q, boolean highestPriority) throws MessageDequeueingException {
         return datasource_.dequeueMessage(q, highestPriority);
     }
 
-    public Message peekMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeuingException {
+    public Message peekMessage(Queue q, Client c, boolean highestPriority) throws MessageDequeueingException {
         return datasource_.dequeueMessage(q, c, highestPriority);
     }
 

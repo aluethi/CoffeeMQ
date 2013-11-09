@@ -1,7 +1,6 @@
 package com.company.client;
 
-import com.company.exception.MsgInsertionException;
-import com.company.exception.MsgRetrievalException;
+import com.company.exception.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,47 +23,47 @@ public class Queue {
         return id_;
     }
 
-    public void put(Message msg) throws MsgInsertionException {
+    public void put(Message msg) throws SenderDoesNotExistException, QueueDoesNotExistException, MessageEnqueueingException {
         msgService_.put(id_, msg);
     }
 
     //Gets oldest message from queue
-    public Message get() throws MsgRetrievalException {
-        return msgService_.get(id_, 0, false, false);
+    public Message get() throws NoMessageInQueueException, NoMessageFromSenderException, MessageDequeueingException, QueueDoesNotExistException {
+        return msgService_.get(id_, 0, false);
     }
 
     //Gets oldest message from sender with id senderId from queue
-    public Message getFromSender(int senderId) throws MsgRetrievalException {
-        return msgService_.get(id_, senderId, false, false);
+    public Message getFromSender(int senderId) throws NoMessageInQueueException, NoMessageFromSenderException, MessageDequeueingException, QueueDoesNotExistException {
+        return msgService_.get(id_, senderId, false);
     }
 
     //Gets oldest message with highest priority from queue
-    public Message getHighestPriority() throws MsgRetrievalException {
-        return msgService_.get(id_, 0, true, false);
+    public Message getHighestPriority() throws NoMessageInQueueException, NoMessageFromSenderException, MessageDequeueingException, QueueDoesNotExistException {
+        return msgService_.get(id_, 0, true);
     }
 
     //Gets oldest message from sender with id senderId with highest priority from queue
-    public Message getFromSenderHighestPriority(int senderId) throws MsgRetrievalException {
-        return msgService_.get(id_, senderId, true, false);
+    public Message getFromSenderHighestPriority(int senderId) throws NoMessageInQueueException, NoMessageFromSenderException, MessageDequeueingException, QueueDoesNotExistException {
+        return msgService_.get(id_, senderId, true);
     }
 
     //Peeks (gets message without deleting it) oldest message from queue
-    public Message peek() throws MsgRetrievalException {
-        return msgService_.get(id_, 0, false, true);
+    public Message peek() throws NoMessageInQueueException, MessagePeekingException, QueueDoesNotExistException, NoMessageFromSenderException {
+        return msgService_.peek(id_, 0, false);
     }
 
     //Peeks (gets message without deleting it) oldest message from sender with id senderId from queue
-    public Message peekFromSender(int senderId) throws MsgRetrievalException {
-        return msgService_.get(id_, senderId, false, true);
+    public Message peekFromSender(int senderId) throws NoMessageInQueueException, MessagePeekingException, QueueDoesNotExistException, NoMessageFromSenderException {
+        return msgService_.peek(id_, senderId, false);
     }
 
     //Peeks (gets message without deleting it) oldest message with highest priority from queue
-    public Message peekHighestPriority() throws MsgRetrievalException {
-        return msgService_.get(id_, 0, true, true);
+    public Message peekHighestPriority() throws NoMessageInQueueException, MessagePeekingException, QueueDoesNotExistException, NoMessageFromSenderException {
+        return msgService_.peek(id_, 0, true);
     }
 
     //Peeks (gets message without deleting it) oldest message from sender with id senderId with highest priority from queue
-    public Message peekFromSenderHighestPriority(int senderId) throws MsgRetrievalException {
-        return msgService_.get(id_, senderId, true, true);
+    public Message peekFromSenderHighestPriority(int senderId) throws NoMessageInQueueException, MessagePeekingException, QueueDoesNotExistException, NoMessageFromSenderException {
+        return msgService_.peek(id_, senderId, true);
     }
 }
