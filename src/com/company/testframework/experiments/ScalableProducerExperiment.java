@@ -26,7 +26,13 @@ public class ScalableProducerExperiment extends Experiment {
         HOST_ = args[1];
         producerCount_ = Integer.parseInt(args[3]);
         for (int i = 0; i < producerCount_; i++) {
-            (new Thread(new Producer(args[3] + "_Producer" + i, "Queue" + i, 50, 25))).start();
+            try {
+                (new Thread(new Producer(args[3] + "_Producer" + i, "Queue", 50, 25))).start();
+            } catch (QueueDoesNotExistException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (QueueReadException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 
@@ -50,7 +56,7 @@ public class ScalableProducerExperiment extends Experiment {
         int thinkTimeSd_;
         String queueId_;
 
-        public Producer(String clientName, String queueId, int thinkTimeMean, int thinkTimeSd) {
+        public Producer(String clientName, String queueId, int thinkTimeMean, int thinkTimeSd) throws QueueDoesNotExistException, QueueReadException {
             thinkTimeMean_ = thinkTimeMean;
             thinkTimeSd_ = thinkTimeSd;
             queueId_ = queueId;
@@ -64,7 +70,13 @@ public class ScalableProducerExperiment extends Experiment {
             } catch (QueueCreationException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             } catch (QueueExistsException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                try {
+                    q_ = service_.getQueue(queueId_);
+                } catch (QueueReadException e2) {
+                    e2.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (QueueDoesNotExistException e2) {
+                    e2.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             } catch (ClientExistsException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }

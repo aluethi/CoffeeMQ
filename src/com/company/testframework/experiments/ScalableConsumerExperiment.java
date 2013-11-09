@@ -25,7 +25,7 @@ public class ScalableConsumerExperiment extends Experiment {
         HOST_ = args[1];
         consumerCount_ = Integer.parseInt(args[3]);
         for (int i = 0; i < consumerCount_; i++) {
-            (new Thread(new Consumer(args[3] + "_Consumer" + i, "Queue" + i, 50, 25))).start();
+            (new Thread(new Consumer(args[3] + "_Consumer" + i, "Queue", 50, 25))).start();
         }
     }
 
