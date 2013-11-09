@@ -38,10 +38,8 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run() {
         if(key_.isReadable()) {
-            LOGGER_.log(Level.INFO, "read()");
             read();
         } else if(key_.isWritable()) {
-            LOGGER_.log(Level.INFO, "write()");
             write();
         }
     }
@@ -52,14 +50,17 @@ public class ConnectionHandler implements Runnable {
      */
     public void read() {
         try {
-            int bytesRead = 0, limit, pos, size;
+            int bytesRead = 0, bytes, limit, pos, size;
 
             // clear buffer
             buffer_.clear();
 
             // read first message size
             do {
-                bytesRead += channel_.read(buffer_);
+                if((bytes = channel_.read(buffer_)) < 0) {
+                    return;
+                }
+                bytesRead += bytes;
             } while(bytesRead < 4);
 
             // safe buffer limit and pos
@@ -76,7 +77,10 @@ public class ConnectionHandler implements Runnable {
 
             // read more from the network..
             while(bytesRead < size){
-                bytesRead += channel_.read(buffer_);
+                if((bytes = channel_.read(buffer_)) < 0) {
+                    return;
+                }
+                bytesRead += bytes;
             }
 
             // submit a client to the executor service
@@ -105,6 +109,7 @@ public class ConnectionHandler implements Runnable {
      */
     public void write() {
         try {
+            buffer_.flip();
             channel_.write(buffer_);
             key_.interestOps(SelectionKey.OP_READ);
         } catch (IOException e) {

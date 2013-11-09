@@ -20,13 +20,11 @@ public class SimpleProducer {
        int msgCount = 0;
 
        MessageService msgService = new MessageService(host, port);
-       MessageService msgService2 = new MessageService(host, port);
 
        try {
-           msgService.register("SimpleProducer");
-           msgService2.register("SimpleProducer2");
-           msgService.createQueue("SimpleQueue");
-           Queue q = msgService.getQueue("SimpleQueue");
+           msgService.register(args[0]);
+           msgService.createQueue(args[1]);
+           Queue q = msgService.getQueue(args[1]);
            while(true) {
                Message m = new Message(0,0,0,"Message: " + msgCount++);
                q.put(m);
@@ -47,6 +45,14 @@ public class SimpleProducer {
            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
        } catch (ClientExistsException e) {
            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+       } finally {
+           try {
+               msgService.deregister();
+           } catch (DeregisterFailureException e) {
+               e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+           } catch (ClientDoesNotExistException e) {
+               e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+           }
        }
 
    }

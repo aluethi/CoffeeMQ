@@ -1,9 +1,7 @@
 package com.company.testframework.experiments;
 
 import com.company.client.MessageService;
-import com.company.exception.MsgRetrievalException;
-import com.company.exception.NonExistentQueueException;
-import com.company.exception.RegisterFailureException;
+import com.company.exception.*;
 import com.company.client.*;
 import com.company.testframework.Experiment;
 
@@ -21,10 +19,6 @@ public class ScalableConsumerExperiment extends Experiment {
     public static final int PORT_ = 5555;
     public String HOST_ = "localhost";
     public int consumerCount_ = 0;
-
-    public ScalableConsumerExperiment() {
-
-    }
 
     @Override
     public void setUp(String[] args) {
@@ -65,6 +59,8 @@ public class ScalableConsumerExperiment extends Experiment {
                 service_.register(clientName);
             } catch (RegisterFailureException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ClientExistsException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
             boolean success = false;
@@ -72,7 +68,9 @@ public class ScalableConsumerExperiment extends Experiment {
                 try {
                     q_ = service_.getQueue(queueId_);
                     success = true;
-                } catch (NonExistentQueueException e) {
+                } catch (QueueReadException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (QueueDoesNotExistException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
@@ -85,7 +83,13 @@ public class ScalableConsumerExperiment extends Experiment {
             while (true) {
                 try {
                     msg = q_.get();
-                } catch (MsgRetrievalException e) {
+                } catch (NoMessageInQueueException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (QueueDoesNotExistException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (MessageDequeueingException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (NoMessageFromSenderException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
 

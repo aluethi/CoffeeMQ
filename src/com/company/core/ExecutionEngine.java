@@ -6,6 +6,8 @@ import com.company.model.Message;
 import com.company.model.ModelFactory;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.company.core.Response.*;
 
@@ -18,6 +20,8 @@ import static com.company.core.Response.*;
  */
 public class ExecutionEngine {
 
+    private static Logger LOGGER_ = Logger.getLogger(ExecutionEngine.class.getCanonicalName());
+
     private DaoManager manager_ = new DaoManager();
 
     public void process(ByteBuffer buffer_) {
@@ -25,27 +29,35 @@ public class ExecutionEngine {
 
         switch(msgType) {
             case Response.MSG_REGISTER:
+                LOGGER_.log(Level.INFO, "MSG_REGISTER");
                 registerClient(buffer_.getInt()).serialize(buffer_);
                 break;
             case Response.MSG_DEREGISTER:
+                LOGGER_.log(Level.INFO, "MSG_DEREGISTER");
                 deregisterClient(buffer_.getInt()).serialize(buffer_);
                 break;
             case Response.MSG_CREATE_QUEUE:
+                LOGGER_.log(Level.INFO, "MSG_CREATE_QUEUE");
                 createQueue(buffer_.getInt()).serialize(buffer_);
                 break;
             case Response.MSG_GET_QUEUE:
+                LOGGER_.log(Level.INFO, "MSG_GET_QUEUE");
                 getQueue(buffer_.getInt()).serialize(buffer_);
                 break;
             case Response.MSG_DELETE_QUEUE:
+                LOGGER_.log(Level.INFO, "MSG_DELETE_QUEUE");
                 deleteQueue(buffer_.getInt()).serialize(buffer_);
                 break;
             case Response.MSG_PUT_INTO_QUEUE:
+                LOGGER_.log(Level.INFO, "MSG_PUT_INTO_QUEUE");
                 put(buffer_).serialize(buffer_);
                 break;
             case Response.MSG_GET:
+                LOGGER_.log(Level.INFO, "MSG_GET");
                 get(buffer_).serialize(buffer_);
                 break;
             case Response.MSG_PEEK:
+                LOGGER_.log(Level.INFO, "MSG_PEEK");
                 peek(buffer_).serialize(buffer_);
                 break;
         }

@@ -13,17 +13,17 @@ import java.nio.ByteBuffer;
  */
 public class Response {
 
-    public static final int MSG_REGISTER = 0;
-    public static final int MSG_DEREGISTER = 1;
-    public static final int MSG_CREATE_QUEUE = 2;
-    public static final int MSG_GET_QUEUE = 3;
-    public static final int MSG_DELETE_QUEUE = 4;
-    public static final int MSG_PUT_INTO_QUEUE = 5;
-    public static final int MSG_GET = 6;
-    public static final int MSG_PEEK = 7;
+    public static final int MSG_REGISTER = 1;
+    public static final int MSG_DEREGISTER = 2;
+    public static final int MSG_CREATE_QUEUE = 3;
+    public static final int MSG_GET_QUEUE = 4;
+    public static final int MSG_DELETE_QUEUE = 5;
+    public static final int MSG_PUT_INTO_QUEUE = 6;
+    public static final int MSG_GET = 7;
+    public static final int MSG_PEEK = 8;
 
-    public static final int STATUS_OK = 0;
-    public static final int STATUS_ERROR = 1;
+    public static final int STATUS_OK = 1;
+    public static final int STATUS_ERROR = 2;
 
     public static final int ERR_CLIENT_CREATION_EXCEPTION = 1;
     public static final int ERR_CLIENT_EXISTS_EXCEPTION = 2;

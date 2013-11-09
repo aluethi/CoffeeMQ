@@ -3,9 +3,7 @@ package com.company.testframework.experiments;
 import com.company.client.Message;
 import com.company.client.MessageService;
 import com.company.client.Queue;
-import com.company.exception.MsgInsertionException;
-import com.company.exception.NonExistentQueueException;
-import com.company.exception.RegisterFailureException;
+import com.company.exception.*;
 import com.company.testframework.Experiment;
 
 import java.util.Random;
@@ -22,10 +20,6 @@ public class ScalableProducerExperiment extends Experiment {
     public static final int PORT_ = 5555;
     public  String HOST_ = "localhost";
     public int producerCount_ = 0;
-
-    public ScalableProducerExperiment() {
-
-    }
 
     @Override
     public void setUp(String[] args) {
@@ -67,22 +61,13 @@ public class ScalableProducerExperiment extends Experiment {
                 q_ = service_.createQueue(queueId_);
             } catch (RegisterFailureException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            } catch (NonExistentQueueException e) {
+            } catch (QueueCreationException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (QueueExistsException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ClientExistsException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
-
-            /*boolean success = false;
-            while (!success) {
-                try {
-                    service_.register(clientName);
-                    q_ = service_.createQueue(queueId_);
-                    success = true;
-                } catch (RegisterFailureException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (NonExistentQueueException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }*/
 
         }
 
@@ -93,7 +78,11 @@ public class ScalableProducerExperiment extends Experiment {
             while (true) {
                 try {
                     q_.put(msg);
-                } catch (MsgInsertionException e) {
+                } catch (SenderDoesNotExistException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (QueueDoesNotExistException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (MessageEnqueueingException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
 

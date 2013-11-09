@@ -59,6 +59,7 @@ public class MessageServiceImpl {
     }
 
     public void register(int clientId) throws RegisterFailureException, ClientExistsException {
+        clientId_ = clientId;
         try {
             out_.writeInt(8); //Size
             out_.writeInt(Response.MSG_REGISTER);

@@ -86,7 +86,6 @@ public class Acceptor implements Runnable {
     void dispatch(SelectionKey key) {
         Runnable r = (Runnable) key.attachment();
         if(r != null) {
-            LOGGER_.log(Level.INFO, "Dispatching handler");
             r.run();
         }
     }
