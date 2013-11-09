@@ -44,9 +44,9 @@ public class ManagementMain implements ActionListener {
     final JLabel labelQueueCount = new JLabel(labelPrefixQueueCount + "-1    ");
     final JLabel labelMessageCount = new JLabel(labelPrefixMessageCount + "-1    ");
 
+    static JFrame frame = null;
     JPanel pane = null;
     JTable table = null;
-    JTable tmpTable = null;
     JTable messageTable = null;
     QueueTableModel tableModel = null;
 
@@ -122,19 +122,18 @@ public class ManagementMain implements ActionListener {
             JOptionPane.showMessageDialog(null, new JScrollPane(messageTable));
         } else {
             String[] columnNames = {"Queue Id", "Created"};
-            /*table = new JTable(this.getQueues(), columnNames);
-            ((AbstractTableModel)table.getModel()).fi;
-            tmpTable = new JTable(this.getQueues(), columnNames);
-            table.setModel(tmpTable.getModel());*/
-
             Object[][] queues = this.getQueues();
             tableModel.deleteAllRows();
             for (int i = 0; i < queues.length; i++) {
                 tableModel.addRow(queues[i]);
             }
             tableModel.fireTableDataChanged();
-            pane.updateUI();
 
+            SwingUtilities.updateComponentTreeUI(frame);
+
+            frame.invalidate();
+            frame.validate();
+            frame.repaint();
         }
     }
 
@@ -220,7 +219,7 @@ public class ManagementMain implements ActionListener {
 
     private static void createAndShowGUI() {
         //Create and set up the window.
-        JFrame frame = new JFrame("CoffeeMQ Management Console - Proudly serving you since '13");
+        frame = new JFrame("CoffeeMQ Management Console - Proudly serving you since '13");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Dimension d = new Dimension(500, 200);
         frame.setMinimumSize(d);

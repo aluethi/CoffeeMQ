@@ -1,5 +1,6 @@
 package com.company.testframework;
 
+
 /**
  * Created with IntelliJ IDEA.
  * User: nano
@@ -8,4 +9,7 @@ package com.company.testframework;
  * To change this template use File | Settings | File Templates.
  */
 public class TestMain {
+    public static void main(String[] args) {
+
+    }
 }
