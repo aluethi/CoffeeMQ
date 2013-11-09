@@ -1,15 +1,13 @@
 package com.company.core;
 
 import com.company.database.DAO;
+import com.company.database.DaoManager;
 import com.company.database.PGDatasource;
 import com.company.exception.*;
-import com.company.model.Client;
 import com.company.model.Message;
 import com.company.model.ModelFactory;
-import com.company.model.Queue;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.company.core.Response.*;
@@ -23,44 +21,30 @@ import static com.company.core.Response.*;
  */
 public class ExecutionEngine {
 
-    private static Logger LOGGER_ = Logger.getLogger(ExecutionEngine.class.getCanonicalName());
-
-    private DAO dao_ = new DAO(new PGDatasource());
+    private DaoManager manager_ = new DaoManager();
 
     public void process(ByteBuffer buffer_) {
         int msgType = buffer_.getInt();
 
         switch(msgType) {
             case MQProtocol.MSG_REGISTER:
-            {
                 prepareAnswer(buffer_, registerClient(buffer_.getInt()));
-            }
-            break;
+                break;
             case MQProtocol.MSG_DEREGISTER:
-            {
                 prepareAnswer(buffer_, deregisterClient(buffer_.getInt()));
-            }
-            break;
+                break;
             case MQProtocol.MSG_CREATE_QUEUE:
-            {
                 prepareAnswer(buffer_, createQueue(buffer_.getInt()));
-            }
-            break;
+                break;
             case MQProtocol.MSG_GET_QUEUE:
-            {
                 prepareAnswer(buffer_, getQueue(buffer_.getInt()));
-            }
-            break;
+                break;
             case MQProtocol.MSG_DELETE_QUEUE:
-            {
                 prepareAnswer(buffer_, deleteQueue(buffer_.getInt()));
-            }
-            break;
+                break;
             case MQProtocol.MSG_PUT_INTO_QUEUE:
-            {
                 prepareAnswer(buffer_, put(buffer_));
-            }
-            break;
+                break;
             case MQProtocol.MSG_GET:
             {
                 Response response = get(buffer_);
@@ -83,53 +67,91 @@ public class ExecutionEngine {
     }
 
     public Response registerClient(int clientId) {
-        LOGGER_.log(Level.INFO, "Registering client " + clientId);
+        manager_.beginConnectionScope();
         try {
-            dao_.createClient(ModelFactory.createClient(clientId));
+            manager_.beginTransaction();
+            manager_.getClientDao().createClient(ModelFactory.createClient(clientId));
+            manager_.endTransaction();
         } catch (ClientCreationException e) {
+            manager_.abortTransaction();
             return err(EC_CLIENT_CREATION_EXCEPTION);
+        } catch (ClientExistsException e) {
+            manager_.abortTransaction();
+            // TODO
+        } finally {
+            manager_.endConnectionScope();
         }
         return ok();
     }
 
     public Response deregisterClient(int clientId) {
-        // TODO: change DAO to only use clientId instead of client model to delete a client
-        LOGGER_.log(Level.INFO, "Deregistering client " + clientId);
+        manager_.beginConnectionScope();
         try {
-            dao_.deleteClient(ModelFactory.createClient(clientId));
+            manager_.beginTransaction();
+            manager_.getClientDao().deleteClient(clientId);
+            manager_.endTransaction();
         } catch (ClientDeletionException e) {
+            manager_.abortTransaction();
             return err(EC_CLIENT_DELETION_EXCEPTION);
+        } catch (ClientDoesNotExistException e) {
+            manager_.abortTransaction();
+            // TODO
+        } finally {
+            manager_.endConnectionScope();
         }
         return ok();
     }
 
     public Response createQueue(int queueId) {
-        LOGGER_.log(Level.INFO, "Creating queue " + queueId);
+        manager_.beginConnectionScope();
         try {
-            dao_.createQueue(ModelFactory.createQueue(queueId));
+            manager_.beginTransaction();
+            manager_.getQueueDao().createQueue(ModelFactory.createQueue(queueId));
+            manager_.endTransaction();
         } catch (QueueCreationException e) {
+            manager_.abortTransaction();
             return err(EC_QUEUE_CREATION_EXCEPTION);
+        } catch (QueueExistsException e) {
+            manager_.abortTransaction();
+            // TODO
+        } finally {
+            manager_.endConnectionScope();
         }
         return ok();
     }
 
     private Response getQueue(int queueId) {
-        LOGGER_.log(Level.INFO, "Get queue " + queueId);
+        manager_.beginConnectionScope();
         try {
-            dao_.getQueue(queueId);
-        } catch (GetQueueException e) {
+            manager_.beginTransaction();
+            manager_.getQueueDao().readQueue(queueId);
+            manager_.endTransaction();
+        } catch (QueueReadException e) {
+            manager_.abortTransaction();
             return err(EC_QUEUE_GET_EXCEPTION);
+        } catch (QueueDoesNotExistException e) {
+            manager_.abortTransaction();
+            // TODO
+        } finally {
+            manager_.endConnectionScope();
         }
         return ok();
     }
 
     private Response deleteQueue(int queueId) {
-        LOGGER_.log(Level.INFO, "Delete queue " + queueId);
-        Queue q = ModelFactory.createQueue(queueId);
+        manager_.beginConnectionScope();
         try {
-            dao_.deleteQueue(q);
-        } catch (QueueDeletionException e) {
+            manager_.beginTransaction();
+            manager_.getQueueDao().deleteQueue(queueId);
+            manager_.endTransaction();
+        } catch (ClientDeletionException e) {
+            manager_.abortTransaction();
             return err(EC_QUEUE_DELETION_EXCEPTION);
+        } catch (QueueDoesNotExistException e) {
+            manager_.abortTransaction();
+            // TODO
+        } finally {
+            manager_.endConnectionScope();
         }
         return ok();
     }
@@ -144,43 +166,33 @@ public class ExecutionEngine {
         byte[] msg = new byte[msgLength];
         buffer.get(msg);
         Message m = ModelFactory.createMessage(senderId, receiverId, queueId, context, prio, new String(msg));
-        LOGGER_.log(Level.INFO, "Put message " + m.getMessage());
+        manager_.beginConnectionScope();
         try {
-            dao_.enqueueMessage(m);
+            manager_.beginTransaction();
+            manager_.getMessageDao().enqueueMessage(m);
+            manager_.endTransaction();
         } catch (MessageEnqueuingException e) {
+            manager_.abortTransaction();
             return err(EC_PUT_EXCEPTION);
+        } catch (SenderDoesNotExistException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (QueueDoesNotExistException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } finally {
+            manager_.endConnectionScope();
         }
         return ok();
     }
-/*
-    private Response get(ByteBuffer buffer) {
 
-    }
-*/
     private Response get(ByteBuffer buffer) {
         int senderId = buffer.getInt();
         int prio = buffer.getInt();
         int queueId = buffer.getInt();
-        Queue q = ModelFactory.createQueue(queueId);
-        Client s = null;
-        Message m = null;
-        if (senderId != 0) {
-            s = ModelFactory.createClient(senderId);
-        }
+        Message m;
+        manager_.beginConnectionScope();
+        manager_.beginTransaction();
         try {
-            if (senderId == 0) {
-                if (prio == 0) {
-                    m = dao_.dequeueMessage(q, false);
-                } else {
-                    m = dao_.dequeueMessage(q, true);
-                }
-            } else {
-                if (prio == 0) {
-                    m = dao_.dequeueMessage(q, s, false);
-                } else {
-                    m = dao_.dequeueMessage(q, s, true);
-                }
-            }
+            m = manager_.getMessageDao().dequeueMessage(queueId, senderId, (prio != 0));
             //Write message information back to buffer
             buffer.clear();
             buffer.putInt(STATUS_OK);
@@ -190,10 +202,22 @@ public class ExecutionEngine {
             buffer.putInt(m.getPriority());
             buffer.putInt(m.getMessage().getBytes().length);
             buffer.put(m.getMessage().getBytes());
-
-            LOGGER_.log(Level.INFO, "Get message " + m.getId());
+            manager_.endTransaction();
+            return ok();
         } catch (MessageDequeuingException e) {
+            manager_.abortTransaction();
             return err(EC_GET_EXCEPTION);
+        } catch (NoMessageInQueueException e) {
+            manager_.abortTransaction();
+            // TODO
+        } catch (QueueDoesNotExistException e) {
+            manager_.abortTransaction();
+            // TODO
+        } catch (NoMessageFromSenderException e) {
+            manager_.abortTransaction();
+            // TODO
+        } finally {
+            manager_.endConnectionScope();
         }
         return null;
     }
@@ -202,26 +226,11 @@ public class ExecutionEngine {
         int senderId = buffer.getInt();
         int prio = buffer.getInt();
         int queueId = buffer.getInt();
-        Queue q = ModelFactory.createQueue(queueId);
-        Client s = null;
-        Message m = null;
-        if (senderId != 0) {
-            s = ModelFactory.createClient(senderId);
-        }
+        Message m;
+        manager_.beginConnectionScope();
+        manager_.beginTransaction();
         try {
-            if (senderId == 0) {
-                if (prio == 0) {
-                    dao_.peekMessage(q, false);
-                } else {
-                    dao_.peekMessage(q, true);
-                }
-            } else {
-                if (prio == 0) {
-                    dao_.peekMessage(q, s, false);
-                } else {
-                    dao_.peekMessage(q, s, true);
-                }
-            }
+            m = manager_.getMessageDao().peekMessage(queueId, senderId, (prio != 0));
             //Write message information back to buffer
             buffer.clear();
             buffer.putInt(STATUS_OK);
@@ -231,10 +240,22 @@ public class ExecutionEngine {
             buffer.putInt(m.getPriority());
             buffer.putInt(m.getMessage().getBytes().length);
             buffer.put(m.getMessage().getBytes());
-
-            LOGGER_.log(Level.INFO, "Peek message " + m.getId());
-        } catch (MessageDequeuingException e) {
-            return err(EC_GET_EXCEPTION);
+            manager_.endTransaction();
+            return ok();
+        } catch (NoMessageInQueueException e) {
+            manager_.abortTransaction();
+            // TODO
+        } catch (NoMessageFromSenderException e) {
+            manager_.abortTransaction();
+            // TODO
+        } catch (MessagePeekingException e) {
+            manager_.abortTransaction();
+            // TODO
+        } catch (QueueDoesNotExistException e) {
+            manager_.abortTransaction();
+            // TODO
+        } finally {
+            manager_.endConnectionScope();
         }
         return null;
     }

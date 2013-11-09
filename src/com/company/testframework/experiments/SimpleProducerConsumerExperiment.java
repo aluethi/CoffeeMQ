@@ -1,7 +1,8 @@
-package com.company.testframework;
+package com.company.testframework.experiments;
 
 import com.company.client.MessageService;
 import com.company.exception.RegisterFailureException;
+import com.company.testframework.Experiment;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,6 +19,7 @@ public class SimpleProducerConsumerExperiment extends Experiment {
     @Override
     public void setUp() {
         //service = new MessageService("localhost", 5555);
+        System.out.println("Hello World");
     }
 
     @Override

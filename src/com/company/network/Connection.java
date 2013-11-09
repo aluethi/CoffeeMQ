@@ -3,7 +3,6 @@ package com.company.network;
 import com.company.core.ExecutionEngine;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -13,24 +12,27 @@ import java.util.logging.Logger;
  * Time: 11:20 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Client implements Runnable {
+public class Connection implements Runnable {
 
-    private static Logger LOGGER_ = Logger.getLogger(Client.class.getCanonicalName());
+    private static Logger LOGGER_ = Logger.getLogger(Connection.class.getCanonicalName());
 
     private final ByteBuffer buffer_;
     private final ICallback callback_;
 
-    public Client(ByteBuffer buffer, ICallback callback) {
+    public Connection(ByteBuffer buffer, ICallback callback) {
         buffer_ = buffer;
         callback_ = callback;
     }
 
+    /**
+     * Executing the incoming message on the ExecutionEngine.
+     */
     @Override
     public void run() {
-        LOGGER_.log(Level.INFO, "Processing client");
         ExecutionEngine engine = new ExecutionEngine();
         engine.process(buffer_);
-        LOGGER_.log(Level.INFO, "Processing done");
+
+        // calling the callback to register a write interest on the selector.
         callback_.callback();
     }
 }

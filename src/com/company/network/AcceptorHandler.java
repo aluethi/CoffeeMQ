@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * Time: 1:35 PM
  * To change this template use File | Settings | File Templates.
  */
-public class AcceptorHandler extends Handler {
+public class AcceptorHandler implements Runnable {
 
     private static Logger LOGGER_ = Logger.getLogger(AcceptorHandler.class.getCanonicalName());
 
@@ -30,6 +30,9 @@ public class AcceptorHandler extends Handler {
         executor_ = executor;
     }
 
+    /**
+     * Acceptor handler run: accepts a connection and attaches a client handler.
+     */
     @Override
     public void run() {
         try {
@@ -39,7 +42,7 @@ public class AcceptorHandler extends Handler {
                 channel.configureBlocking(false);
                 selector_.wakeup();
                 SelectionKey key = channel.register(selector_, SelectionKey.OP_READ);
-                key.attach(new ClientHandler(key, channel, executor_));
+                key.attach(new ConnectionHandler(key, channel, executor_));
             }
         } catch (IOException e) {
             LOGGER_.log(Level.SEVERE, "Could not open client socket channel");

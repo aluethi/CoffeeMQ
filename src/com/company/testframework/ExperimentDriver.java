@@ -10,11 +10,13 @@ package com.company.testframework;
 public class ExperimentDriver {
 
     public static void main(String[] args) {
-        if(args.length <= 1) {
+        System.out.println(args[0]);
+        if(args.length <= 0) {
             System.out.println("Experiment argument missing.");
+            return;
         }
 
-        ExperimentDriver driver = new ExperimentDriver(args[1]);
+        ExperimentDriver driver = new ExperimentDriver(args[0]);
     }
 
     public ExperimentDriver(String className) {
@@ -24,7 +26,7 @@ public class ExperimentDriver {
     private void init(String className) {
         System.out.println("Loading experiment class: " + className);
         try {
-            Class<Experiment> expClass = (Class<Experiment>) ExperimentDriver.class.getClassLoader().loadClass(className);
+            Class<Experiment> expClass = (Class<Experiment>) ExperimentDriver.class.getClassLoader().loadClass("com.company.testframework.experiments." + className);
             Experiment experiment = expClass.newInstance();
 
             System.out.println("Starting experiment...");

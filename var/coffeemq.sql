@@ -46,8 +46,12 @@ $BODY$
 declare
     result_record queue;
 begin
-	SELECT * FROM queue INTO result_record WHERE Id = $1;
-	return result_record;
+    IF EXISTS(SELECT * FROM queue WHERE Id = $1) THEN
+	    SELECT * FROM queue INTO result_record WHERE Id = $1;
+	    return result_record;
+	ELSE
+	    RAISE 'No entry found with id %.', $1 USING ERRCODE = 'V2001';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -61,7 +65,11 @@ CREATE OR REPLACE FUNCTION deleteQueue(identifier integer)
 $BODY$
 declare
 begin
-	DELETE FROM queue WHERE Id = $1;
+    IF EXISTS(SELECT * FROM queue WHERE Id = $1) THEN
+	    DELETE FROM queue WHERE Id = $1;
+	ELSE
+	    RAISE 'No entry found with id %.', $1 USING ERRCODE = 'V2001';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -89,8 +97,13 @@ CREATE OR REPLACE FUNCTION deleteClient(identifier integer)
 	RETURNS void AS
 $BODY$
 declare
+    ident integer;
 begin
-	DELETE FROM client WHERE Id = $1;
+    IF EXISTS(SELECT Id FROM client WHERE Id = $1) THEN
+	    DELETE FROM client WHERE Id = $1;
+	ELSE
+	    RAISE 'No entry found with id %.', $1 USING ERRCODE = 'V2001';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -105,8 +118,17 @@ $BODY$
 declare
      identifier integer;
 begin
-	INSERT INTO message("sender", "receiver", "queue", "context", "priority", "created", "message") VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING Id into identifier;
-    return identifier;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $3) THEN
+        IF EXISTS(SELECT Id FROM client WHERE Id = $1) THEN
+	        INSERT INTO message("sender", "receiver", "queue", "context", "priority", "created", "message") VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING Id into identifier;
+            return identifier;
+        ELSE
+            RAISE 'No entry found with id % in client table.', $1 USING ERRCODE = 'V2002';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
+
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -121,9 +143,17 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
-	DELETE FROM message WHERE id = result_record.id;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
+            DELETE FROM message WHERE id = result_record.id;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % in message table.', $1 USING ERRCODE = 'V2004';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -138,9 +168,17 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY priority ASC, created ASC LIMIT 1;
-	DELETE FROM message WHERE id = result_record.id;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY priority ASC, created ASC LIMIT 1;
+            DELETE FROM message WHERE id = result_record.id;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % in message table.', $1 USING ERRCODE = 'V2004';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -155,9 +193,17 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY created ASC LIMIT 1;
-	DELETE FROM message WHERE id = result_record.id;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY created ASC LIMIT 1;
+            DELETE FROM message WHERE id = result_record.id;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % and sender id % in message table.', $1, $2 USING ERRCODE = 'V2005';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -172,9 +218,17 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY priority ASC, created ASC LIMIT 1;
-	DELETE FROM message WHERE id = result_record.id;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY priority ASC, created ASC LIMIT 1;
+            DELETE FROM message WHERE id = result_record.id;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % and sender id % in message table.', $1, $2 USING ERRCODE = 'V2005';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -189,8 +243,16 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % in message table.', $1 USING ERRCODE = 'V2004';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -205,8 +267,16 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY priority ASC, created ASC LIMIT 1;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY priority ASC, created ASC LIMIT 1;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % in message table.', $1 USING ERRCODE = 'V2004';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -221,8 +291,16 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY created ASC LIMIT 1;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY created ASC LIMIT 1;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % and sender id % in message table.', $1, $2 USING ERRCODE = 'V2005';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE
@@ -237,8 +315,16 @@ $BODY$
 declare
      result_record message;
 begin
-	SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY priority ASC, created ASC LIMIT 1;
-	return result_record;
+    IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY priority ASC, created ASC LIMIT 1;
+            return result_record;
+        ELSE
+            RAISE 'No entry found with queue id % and sender id % in message table.', $1, $2 USING ERRCODE = 'V2005';
+        END IF;
+	ELSE
+	    RAISE 'No entry found with id % in queue table.', $1 USING ERRCODE = 'V2003';
+	END IF;
 end
 $BODY$
 LANGUAGE plpgsql VOLATILE

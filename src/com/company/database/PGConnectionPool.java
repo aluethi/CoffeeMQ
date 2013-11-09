@@ -43,7 +43,7 @@ public class PGConnectionPool {
         Connection con = null;
         try {
             con = source_.getConnection();
-            con.setAutoCommit(false);
+            //con.setAutoCommit(false);
         } catch (SQLException e) {
             LOGGER_.log(Level.SEVERE, "Could not retrieve connection from the connection pool.");
             throw new RuntimeException(e);

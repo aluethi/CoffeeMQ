@@ -30,4 +30,11 @@ public class Queue {
     public Timestamp getCreated() {
         return created_;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if(!(other instanceof Queue)) return false;
+        Queue that = (Queue) other;
+        return (that.getCreated().equals(created_) && that.getId() == id_);
+    }
 }

@@ -22,9 +22,11 @@ public class SimpleProducer {
        int msgCount = 0;
 
        MessageService msgService = new MessageService(host, port);
+       MessageService msgService2 = new MessageService(host, port);
 
        try {
            msgService.register("SimpleProducer");
+           msgService2.register("SimpleProducer2");
            msgService.createQueue("SimpleQueue");
            Queue q = msgService.getQueue("SimpleQueue");
            while(true) {

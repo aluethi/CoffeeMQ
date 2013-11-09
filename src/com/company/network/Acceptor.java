@@ -23,28 +23,32 @@ public class Acceptor implements Runnable {
     private static Logger LOGGER_ = Logger.getLogger(Acceptor.class.getCanonicalName());
 
     private Selector selector_;
-    private final String host_;
-    private final int port_;
     private ServerSocketChannel serverChannel_;
     private final ExecutorService executor_;
     private boolean isRunning_;
 
     public Acceptor(String host, int port, ExecutorService executor) {
-        host_ = host;
-        port_ = port;
         executor_ = executor;
         isRunning_ = true;
-        init();
+        init(host, port);
     }
 
-    public void init() {
-        LOGGER_.log(Level.INFO, "Initializing Acceptor");
+    /**
+     * Initializing the selector, opening the server socket and binding it to the desired network interface and port.
+     *
+     * @param host Desired network interface
+     * @param port Desired port
+     */
+    private void init(String host, int port) {
+        LOGGER_.log(Level.INFO, "Initializing Acceptor on " + host + ":" + port);
         try {
             selector_ = Selector.open();
             serverChannel_ = ServerSocketChannel.open();
             serverChannel_.configureBlocking(false);
-            serverChannel_.socket().bind(new InetSocketAddress(host_, port_));
+            serverChannel_.socket().bind(new InetSocketAddress(host, port));
             SelectionKey key = serverChannel_.register(selector_, SelectionKey.OP_ACCEPT);
+
+            // Attaching the AcceptorHandler to the server channel
             key.attach(new AcceptorHandler(serverChannel_, selector_, executor_));
         } catch (IOException e) {
             LOGGER_.log(Level.SEVERE, "Could not open the selector or server socket channel");
@@ -52,6 +56,9 @@ public class Acceptor implements Runnable {
         }
     }
 
+    /**
+     * Selecting channels on the selector.
+     */
     @Override
     public void run() {
         while(isRunning_) {
@@ -71,11 +78,16 @@ public class Acceptor implements Runnable {
         }
     }
 
+    /**
+     * Dispatching an attached handler of a selection key.
+     *
+     * @param key
+     */
     void dispatch(SelectionKey key) {
-        Handler h = (Handler) key.attachment();
-        if(h != null) {
+        Runnable r = (Runnable) key.attachment();
+        if(r != null) {
             LOGGER_.log(Level.INFO, "Dispatching handler");
-            h.run();
+            r.run();
         }
     }
 }
