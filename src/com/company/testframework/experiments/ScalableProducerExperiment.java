@@ -27,7 +27,7 @@ public class ScalableProducerExperiment extends Experiment {
         producerCount_ = Integer.parseInt(args[3]);
         for (int i = 0; i < producerCount_; i++) {
             try {
-                (new Thread(new Producer(args[3] + "_Producer" + i, "Queue", 50, 25))).start();
+                (new Thread(new Producer(args[2] + "_Producer" + i, "Queue", 50, 25))).start();
             } catch (QueueDoesNotExistException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             } catch (QueueReadException e) {
