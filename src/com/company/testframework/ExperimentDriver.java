@@ -10,27 +10,35 @@ package com.company.testframework;
 public class ExperimentDriver {
 
     public static void main(String[] args) {
-        System.out.println(args[0]);
-        if(args.length <= 0) {
-            System.out.println("Experiment argument missing.");
-            return;
+        if(args.length <= 1) {
+            System.out.println("Experiment argument missing: Experiment name and host needed.");
+        }
+        if(args[1].equals("ScalableConsumerExperiment")) {
+            if(args.length <= 2) {
+                System.out.println("Experiment argument missing: Number of consumers needed.");
+            }
+        }
+        if(args[1].equals("ScalableProducerExperiment")) {
+            if(args.length <= 2) {
+                System.out.println("Experiment argument missing: Number of producers needed.");
+            }
         }
 
-        ExperimentDriver driver = new ExperimentDriver(args[0]);
+        ExperimentDriver driver = new ExperimentDriver(args);
     }
 
-    public ExperimentDriver(String className) {
-        init(className);
+    public ExperimentDriver(String[] args) {
+       init(args);
     }
 
-    private void init(String className) {
-        System.out.println("Loading experiment class: " + className);
+    private void init(String[] args) {
+        System.out.println("Loading experiment class: " + args[0]);
         try {
-            Class<Experiment> expClass = (Class<Experiment>) ExperimentDriver.class.getClassLoader().loadClass("com.company.testframework.experiments." + className);
+            Class<Experiment> expClass = (Class<Experiment>) ExperimentDriver.class.getClassLoader().loadClass("com.company.testframework.experiments." + args[0]);
             Experiment experiment = expClass.newInstance();
 
             System.out.println("Starting experiment...");
-            experiment.setUp();
+            experiment.setUp(args);
             new Thread(experiment).start();
             experiment.tearDown();
             System.out.println("End of experiment.");

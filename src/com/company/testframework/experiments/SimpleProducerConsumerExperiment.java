@@ -17,7 +17,7 @@ public class SimpleProducerConsumerExperiment extends Experiment {
     public static final int PORT = 5555;
 
     @Override
-    public void setUp() {
+    public void setUp(String[] args) {
         //service = new MessageService("localhost", 5555);
         System.out.println("Hello World");
     }
