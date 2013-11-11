@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class Logger implements Runnable {
 
-    private ConcurrentLinkedQueue<String> logEntries_;
+    private ConcurrentLinkedQueue<String> logEntries_ = new ConcurrentLinkedQueue<String>();
     private PrintWriter writer_;
 
     public Logger(String fileName) {
@@ -29,18 +29,21 @@ public class Logger implements Runnable {
 
     @Override
     public void run() {
+        String entry;
         while(true) {
-            int size = logEntries_.size();
-            int i = 0;
-            while(size > i) {
-                writer_.println(logEntries_.poll());
+            while((entry = logEntries_.poll()) != null) {
+                writer_.println(entry);
             }
-            Thread.sleep();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 
     public void log(String message) {
-
+        logEntries_.add(message);
     }
 
 }
