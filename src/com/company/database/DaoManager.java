@@ -25,15 +25,16 @@ public class DaoManager {
         try {
             connection_.close();
         } catch (SQLException e) {
-            // TODO
+            throw new RuntimeException(e);
         }
     }
 
     public void beginTransaction() {
         try {
             connection_.setAutoCommit(false);
+            connection_.setTransactionIsolation(connection_.TRANSACTION_SERIALIZABLE);
         } catch (SQLException e) {
-            // TODO
+            throw new RuntimeException(e);
         }
     }
 
@@ -41,7 +42,7 @@ public class DaoManager {
         try {
             connection_.commit();
         } catch (SQLException e) {
-            // TODO
+            throw new RuntimeException(e);
         }
     }
 
@@ -49,7 +50,7 @@ public class DaoManager {
         try {
             connection_.rollback();
         } catch (SQLException e) {
-            // TODO
+            throw new RuntimeException(e);
         }
     }
 

@@ -1,7 +1,9 @@
 package com.company.core;
 
+import com.company.config.Configuration;
 import com.company.database.DaoManager;
 import com.company.exception.*;
+import com.company.logger.LoggerSingleton;
 import com.company.model.Message;
 import com.company.model.ModelFactory;
 
@@ -20,45 +22,80 @@ import static com.company.core.Response.*;
  */
 public class ExecutionEngine {
 
-    private static Logger LOGGER_ = Logger.getLogger(ExecutionEngine.class.getCanonicalName());
+    //private static Logger LOGGER_ = Logger.getLogger(ExecutionEngine.class.getCanonicalName());
+    private static com.company.logger.Logger PERFLOG_ = LoggerSingleton.getLogger();
 
     private DaoManager manager_ = new DaoManager();
 
     public void process(ByteBuffer buffer_) {
         int msgType = buffer_.getInt();
+        long starttime, stoptime;
+        Response resp;
 
         switch(msgType) {
             case Response.MSG_REGISTER:
                 //LOGGER_.log(Level.INFO, "MSG_REGISTER");
-                registerClient(buffer_.getInt()).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = registerClient(buffer_.getInt());
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_REGISTER");
                 break;
             case Response.MSG_DEREGISTER:
                 //LOGGER_.log(Level.INFO, "MSG_DEREGISTER");
-                deregisterClient(buffer_.getInt()).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = deregisterClient(buffer_.getInt());
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_DEREGISTER");
                 break;
             case Response.MSG_CREATE_QUEUE:
                 //LOGGER_.log(Level.INFO, "MSG_CREATE_QUEUE");
-                createQueue(buffer_.getInt()).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = createQueue(buffer_.getInt());
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_CREATE_QUEUE");
                 break;
             case Response.MSG_GET_QUEUE:
                 //LOGGER_.log(Level.INFO, "MSG_GET_QUEUE");
-                getQueue(buffer_.getInt()).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = getQueue(buffer_.getInt());
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_GET_QUEUE");
                 break;
             case Response.MSG_DELETE_QUEUE:
                 //LOGGER_.log(Level.INFO, "MSG_DELETE_QUEUE");
-                deleteQueue(buffer_.getInt()).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = deleteQueue(buffer_.getInt());
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_DELETE_QUEUE");
                 break;
             case Response.MSG_PUT_INTO_QUEUE:
                 //LOGGER_.log(Level.INFO, "MSG_PUT_INTO_QUEUE");
-                put(buffer_).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = put(buffer_);
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_PUT_INTO_QUEUE");
                 break;
             case Response.MSG_GET:
                 //LOGGER_.log(Level.INFO, "MSG_GET");
-                get(buffer_).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = get(buffer_);
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_GET");
                 break;
             case Response.MSG_PEEK:
                 //LOGGER_.log(Level.INFO, "MSG_PEEK");
-                peek(buffer_).serialize(buffer_);
+                starttime = System.nanoTime();
+                resp = peek(buffer_);
+                stoptime = System.nanoTime();
+                resp.serialize(buffer_);
+                PERFLOG_.log(starttime + "," + stoptime + ",MSG_PEEK");
                 break;
         }
     }

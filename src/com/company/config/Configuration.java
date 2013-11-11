@@ -38,4 +38,8 @@ public class Configuration {
         return PROPS_.getProperty(name);
     }
 
+    public static void putProperty(String key, String value) {
+        PROPS_.put(key, value);
+    }
+
 }

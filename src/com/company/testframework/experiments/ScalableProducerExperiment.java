@@ -5,6 +5,7 @@ import com.company.client.MessageService;
 import com.company.client.Queue;
 import com.company.exception.*;
 import com.company.logger.Logger;
+import com.company.logger.LoggerSingleton;
 import com.company.testframework.Experiment;
 
 import java.util.Random;
@@ -21,11 +22,10 @@ public class ScalableProducerExperiment extends Experiment {
     public static final int PORT_ = 5555;
     public  String HOST_ = "localhost";
     public int producerCount_ = 0;
-    public Logger logger_ = new Logger("var/log.log");
+    public Logger logger_ = LoggerSingleton.getLogger();
 
     @Override
     public void setUp(String[] args) {
-        new Thread(logger_).start();
         HOST_ = args[1];
         producerCount_ = Integer.parseInt(args[3]);
         for (int i = 0; i < producerCount_; i++) {
