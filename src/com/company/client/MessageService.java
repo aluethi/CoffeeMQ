@@ -21,6 +21,10 @@ public class MessageService {
         msgService_.register(clientId);
     }
 
+    public void register(int clientId) throws RegisterFailureException, ClientExistsException {
+        msgService_.register(clientId);
+    }
+
     public void deregister() throws DeregisterFailureException, ClientDoesNotExistException {
         msgService_.deregister();
     }

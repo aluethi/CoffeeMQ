@@ -68,7 +68,7 @@ public class TraceExperiment extends Experiment {
         }
 */
         for(int i = rrLocalIntervalBegin, j = rrRemoteIntervalBegin; i <= rrLocalIntervalEnd && j <= rrRemoteIntervalEnd; i++, j++) {
-            new Thread(new ReqResClient(i, j)).start();
+            new Thread(new ReqResClient(thinkMean, thinkStddev, i, j)).start();
         }
 /*
         for(int i = csLocalIntervalBegin; i <= csLocalIntervalEnd; i++) {
@@ -175,14 +175,18 @@ public class TraceExperiment extends Experiment {
         private final int id_, partnerId_;
         private MessageService msgService_;
         private Queue queue_;
+        private double thinkMean_, thinkStddev_;
+        private Random r_ = new Random();
 
-        public ReqResClient(int id, int partnerId) {
+        public ReqResClient(double thinkMean, double thinkStddev, int id, int partnerId) {
             id_ = id;
             partnerId_ = partnerId;
+            thinkMean_ = thinkMean;
+            thinkStddev_ = thinkStddev;
 
             msgService_ = new MessageService(HOST_, PORT_);
             try {
-                msgService_.register("ReqResClient" + id);
+                msgService_.register(id);
                 queue_ = msgService_.createQueue("rrq"+(id*partnerId));
             } catch (RegisterFailureException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -204,10 +208,62 @@ public class TraceExperiment extends Experiment {
         @Override
         public void run() {
             long starttime, stoptime;
+            double thinkTime;
             Message msg = null;
 
-            if(id_ < partnerId_) {
-                msg = new Message(partnerId_,0,0,"0");
+            int counter1 = 0, counter2 = 0;
+
+            int count = 0;
+            while(true) {
+                try {
+                    queue_.put(new Message(0, 0, 0, String.valueOf(count)));
+                } catch (SenderDoesNotExistException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (QueueDoesNotExistException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (MessageEnqueueingException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+
+                // Do something
+                thinkTime = thinkMean_ + (r_.nextGaussian() * thinkStddev_);
+                if (thinkTime < 0)
+                    thinkTime = 0;
+                try {
+                    Thread.sleep(Math.round(thinkTime));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+                counter1++;
+                try {
+                    starttime = System.nanoTime();
+                    msg = queue_.getFromSender(partnerId_);
+                    stoptime = System.nanoTime();
+                    //logger_.log(starttime + "," + stoptime + ",RR_GET," + id_);
+                } catch (NoMessageInQueueException e) {
+                    e.printStackTrace();
+                    continue;
+                } catch (NoMessageFromSenderException e) {
+                    counter2++;
+                    e.printStackTrace();
+                    continue;
+                } catch (MessageDequeueingException e) {
+                    e.printStackTrace();
+                    continue;
+                } catch (QueueDoesNotExistException e) {
+                    e.printStackTrace();
+                    continue;
+                }
+
+                System.out.println("Counter1: " + counter1 + " Counter2: " + counter2);
+
+                count = Integer.parseInt(msg.getMessage());
+                count++;
+            }
+
+
+            /*//if(id_ < partnerId_) {
+                msg = new Message(partnerId_, 0, 0, "0");
                 try {
                     queue_.put(msg);
                     Thread.sleep(500);
@@ -220,26 +276,41 @@ public class TraceExperiment extends Experiment {
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-            }
+            //}
 
             while(true) {
                 try {
+                    System.out.println("ID: " + id_);
                     starttime = System.nanoTime();
                     msg = queue_.getFromSender(partnerId_);
                     stoptime = System.nanoTime();
                     logger_.log(starttime + "," + stoptime + ",RR_GET," + id_);
                 } catch (NoMessageInQueueException e) {
+                    e.printStackTrace();
                     continue;
                 } catch (NoMessageFromSenderException e) {
+                    e.printStackTrace();
                     continue;
                 } catch (MessageDequeueingException e) {
+                    e.printStackTrace();
                     continue;
                 } catch (QueueDoesNotExistException e) {
+                    e.printStackTrace();
                     continue;
                 }
 
                 long count = Integer.parseInt(msg.getMessage());
-                msg.setMessage(String.valueOf(count++));
+                msg = new Message(partnerId_, 0, 0, String.valueOf(++count));
+
+                // Do something
+                thinkTime = thinkMean_ + (r_.nextGaussian() * thinkStddev_);
+                if (thinkTime < 0)
+                    thinkTime = 0;
+                try {
+                    Thread.sleep(Math.round(thinkTime));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
 
                 try {
                     starttime = System.nanoTime();
@@ -253,7 +324,7 @@ public class TraceExperiment extends Experiment {
                 } catch (MessageEnqueueingException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-            }
+            }*/
         }
     }
 
