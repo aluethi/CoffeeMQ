@@ -89,7 +89,9 @@ public class ScalableProducerExperiment extends Experiment {
         @Override
         public void run() {
             double thinkTime = 0;
-            Message msg = new Message(0,0,0,"This is a message");
+            Message msg = new Message(0,0,0,"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" +
+                                            "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" +
+                                            "12345678901234567890123456789012345678901234567890");
             long starttime = 0, stoptime = 0;
             while (true) {
                 try {
