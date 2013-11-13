@@ -2,6 +2,8 @@ package com.company.database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,44 +14,55 @@ import java.sql.SQLException;
  */
 public class DaoManager {
 
+    private static Logger LOGGER_ = Logger.getLogger(DaoManager.class.getCanonicalName());
+
     private Connection connection_ = null;
     private ClientDao clientDao_ = null;
     private QueueDao queueDao_ = null;
     private MessageDao messageDao_ = null;
 
     public void beginConnectionScope() {
+        LOGGER_.log(Level.INFO, "Begin connection scope.");
         connection_ = PGConnectionPool.getInstance().getConnection();
     }
 
     public void endConnectionScope() {
         try {
+            LOGGER_.log(Level.INFO, "Ending connection scope.");
             connection_.close();
         } catch (SQLException e) {
+            LOGGER_.log(Level.SEVERE, "Could not close DB connection.");
             throw new RuntimeException(e);
         }
     }
 
     public void beginTransaction() {
         try {
+            LOGGER_.log(Level.INFO, "Begin transaction scope.");
             connection_.setAutoCommit(false);
-            connection_.setTransactionIsolation(connection_.TRANSACTION_SERIALIZABLE);
+            //connection_.setTransactionIsolation(connection_.TRANSACTION_SERIALIZABLE);
         } catch (SQLException e) {
+            LOGGER_.log(Level.SEVERE, "Could not begin transaction.");
             throw new RuntimeException(e);
         }
     }
 
     public void endTransaction() {
         try {
+            LOGGER_.log(Level.INFO, "Ending transaction scope.");
             connection_.commit();
         } catch (SQLException e) {
+            LOGGER_.log(Level.SEVERE, "Could not end transaction.");
             throw new RuntimeException(e);
         }
     }
 
     public void abortTransaction() {
         try {
+            LOGGER_.log(Level.INFO, "Aborting transaction.");
             connection_.rollback();
         } catch (SQLException e) {
+            LOGGER_.log(Level.SEVERE, "Could not abort transaction.");
             throw new RuntimeException(e);
         }
     }

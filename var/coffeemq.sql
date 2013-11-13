@@ -144,8 +144,8 @@ declare
      result_record message;
 begin
     IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
-        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND receiver = 0) THEN
-            SELECT * INTO result_record FROM message WHERE queue = $1 AND receiver = 0 ORDER BY created ASC LIMIT 1;
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY created ASC LIMIT 1;
             DELETE FROM message WHERE id = result_record.id;
             return result_record;
         ELSE
@@ -169,8 +169,8 @@ declare
      result_record message;
 begin
     IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
-        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND receiver = 0) THEN
-            SELECT * INTO result_record FROM message WHERE queue = $1 AND receiver = 0 ORDER BY priority ASC, created ASC LIMIT 1;
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 ORDER BY priority ASC, created ASC LIMIT 1;
             DELETE FROM message WHERE id = result_record.id;
             return result_record;
         ELSE
@@ -194,8 +194,8 @@ declare
      result_record message;
 begin
     IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
-        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2 AND receiver = 0) THEN
-            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 AND receiver = 0 ORDER BY created ASC LIMIT 1;
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY created ASC LIMIT 1;
             DELETE FROM message WHERE id = result_record.id;
             return result_record;
         ELSE
@@ -219,8 +219,8 @@ declare
      result_record message;
 begin
     IF EXISTS(SELECT Id FROM queue WHERE Id = $1) THEN
-        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2 AND receiver = 0) THEN
-            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 AND receiver = 0 ORDER BY priority ASC, created ASC LIMIT 1;
+        IF EXISTS(SELECT Id FROM message WHERE queue = $1 AND sender = $2) THEN
+            SELECT * INTO result_record FROM message WHERE queue = $1 AND sender = $2 ORDER BY priority ASC, created ASC LIMIT 1;
             DELETE FROM message WHERE id = result_record.id;
             return result_record;
         ELSE

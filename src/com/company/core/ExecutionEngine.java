@@ -22,7 +22,7 @@ import static com.company.core.Response.*;
  */
 public class ExecutionEngine {
 
-    //private static Logger LOGGER_ = Logger.getLogger(ExecutionEngine.class.getCanonicalName());
+    private static Logger LOGGER_ = Logger.getLogger(ExecutionEngine.class.getCanonicalName());
     private static com.company.logger.Logger PERFLOG_ = LoggerSingleton.getLogger();
 
     private DaoManager manager_ = new DaoManager();
@@ -34,7 +34,7 @@ public class ExecutionEngine {
 
         switch(msgType) {
             case Response.MSG_REGISTER:
-                //LOGGER_.log(Level.INFO, "MSG_REGISTER");
+                LOGGER_.log(Level.INFO, "MSG_REGISTER");
                 starttime = System.nanoTime();
                 resp = registerClient(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -42,7 +42,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_REGISTER");
                 break;
             case Response.MSG_DEREGISTER:
-                //LOGGER_.log(Level.INFO, "MSG_DEREGISTER");
+                LOGGER_.log(Level.INFO, "MSG_DEREGISTER");
                 starttime = System.nanoTime();
                 resp = deregisterClient(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -50,7 +50,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_DEREGISTER");
                 break;
             case Response.MSG_CREATE_QUEUE:
-                //LOGGER_.log(Level.INFO, "MSG_CREATE_QUEUE");
+                LOGGER_.log(Level.INFO, "MSG_CREATE_QUEUE");
                 starttime = System.nanoTime();
                 resp = createQueue(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -58,7 +58,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_CREATE_QUEUE");
                 break;
             case Response.MSG_GET_QUEUE:
-                //LOGGER_.log(Level.INFO, "MSG_GET_QUEUE");
+                LOGGER_.log(Level.INFO, "MSG_GET_QUEUE");
                 starttime = System.nanoTime();
                 resp = getQueue(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -66,7 +66,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_GET_QUEUE");
                 break;
             case Response.MSG_DELETE_QUEUE:
-                //LOGGER_.log(Level.INFO, "MSG_DELETE_QUEUE");
+                LOGGER_.log(Level.INFO, "MSG_DELETE_QUEUE");
                 starttime = System.nanoTime();
                 resp = deleteQueue(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -74,7 +74,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_DELETE_QUEUE");
                 break;
             case Response.MSG_PUT_INTO_QUEUE:
-                //LOGGER_.log(Level.INFO, "MSG_PUT_INTO_QUEUE");
+                LOGGER_.log(Level.INFO, "MSG_PUT_INTO_QUEUE");
                 starttime = System.nanoTime();
                 resp = put(buffer_);
                 stoptime = System.nanoTime();
@@ -82,7 +82,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_PUT_INTO_QUEUE");
                 break;
             case Response.MSG_GET:
-                //LOGGER_.log(Level.INFO, "MSG_GET");
+                LOGGER_.log(Level.INFO, "MSG_GET");
                 starttime = System.nanoTime();
                 resp = get(buffer_);
                 stoptime = System.nanoTime();
@@ -90,7 +90,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_GET");
                 break;
             case Response.MSG_PEEK:
-                //LOGGER_.log(Level.INFO, "MSG_PEEK");
+                LOGGER_.log(Level.INFO, "MSG_PEEK");
                 starttime = System.nanoTime();
                 resp = peek(buffer_);
                 stoptime = System.nanoTime();
@@ -98,6 +98,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_PEEK");
                 break;
         }
+        LOGGER_.log(Level.INFO, "End of execution engine process");
     }
 
     public Response registerClient(int clientId) {

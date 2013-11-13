@@ -3,6 +3,8 @@ package com.company.testframework.experiments;
 import com.company.client.MessageService;
 import com.company.exception.*;
 import com.company.client.*;
+import com.company.logger.Logger;
+import com.company.logger.LoggerSingleton;
 import com.company.testframework.Experiment;
 
 import java.util.Random;
@@ -19,6 +21,7 @@ public class ScalableConsumerExperiment extends Experiment {
     public static final int PORT_ = 5555;
     public String HOST_ = "localhost";
     public int consumerCount_ = 0;
+    public Logger logger_ = LoggerSingleton.getLogger();
 
     @Override
     public void setUp(String[] args) {
@@ -80,18 +83,23 @@ public class ScalableConsumerExperiment extends Experiment {
         public void run() {
             double thinkTime = 0;
             Message msg;
+            long starttime = 0, stoptime = 0;
             while (true) {
                 try {
+                    starttime = System.nanoTime();
                     msg = q_.get();
+                    stoptime = System.nanoTime();
                 } catch (NoMessageInQueueException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 } catch (QueueDoesNotExistException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 } catch (MessageDequeueingException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    continue;
                 } catch (NoMessageFromSenderException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
+                logger_.log(starttime + "," + stoptime + ",GET");
 
                 // Do something with the message
                 thinkTime = thinkTimeMean_ + (r.nextGaussian() * thinkTimeSd_);

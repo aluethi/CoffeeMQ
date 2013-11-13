@@ -3,6 +3,7 @@ package com.company.network;
 import com.company.core.ExecutionEngine;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -29,6 +30,7 @@ public class Connection implements Runnable {
      */
     @Override
     public void run() {
+        LOGGER_.log(Level.INFO, "Running executor: " + Thread.currentThread().getId());
         ExecutionEngine engine = new ExecutionEngine();
         engine.process(buffer_);
 

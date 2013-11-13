@@ -40,9 +40,17 @@ public class AcceptorHandler implements Runnable {
             if(channel != null) {
                 LOGGER_.log(Level.INFO, "Accepted new connection from: " + channel.socket().getRemoteSocketAddress());
                 channel.configureBlocking(false);
+
+                LOGGER_.log(Level.INFO, "Waking up selector");
                 selector_.wakeup();
+
+
+                LOGGER_.log(Level.INFO, "Registering on selector");
                 SelectionKey key = channel.register(selector_, SelectionKey.OP_READ);
-                key.attach(new ConnectionHandler(key, channel, executor_));
+
+
+                LOGGER_.log(Level.INFO, "Attaching ConnectionHandler");
+                key.attach(new ConnectionHandler(key, channel, selector_, executor_));
             }
         } catch (IOException e) {
             LOGGER_.log(Level.SEVERE, "Could not open client socket channel");

@@ -90,19 +90,21 @@ public class ScalableProducerExperiment extends Experiment {
         public void run() {
             double thinkTime = 0;
             Message msg = new Message(0,0,0,"This is a message");
+            long starttime = 0, stoptime = 0;
             while (true) {
                 try {
-                    long starttime = System.nanoTime();
+                    starttime = System.nanoTime();
                     q_.put(msg);
-                    long stoptime = System.nanoTime();
-                    logger_.log(starttime + "," + stoptime);
+                    stoptime = System.nanoTime();
                 } catch (SenderDoesNotExistException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 } catch (QueueDoesNotExistException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 } catch (MessageEnqueueingException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    continue;
                 }
+                logger_.log(starttime + "," + stoptime + ",PUT");
 
                 // Do something
                 thinkTime = thinkTimeMean_ + (r.nextGaussian() * thinkTimeSd_);

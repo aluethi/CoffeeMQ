@@ -22,7 +22,7 @@ public class Main {
         String date = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss").format(new Date(System.currentTimeMillis()));
         System.out.print(banner);
         String configFilePath = "var/config.prop";
-        String logPath = "var/" + date + "-log.csv";
+        String logPath = "log/" + date + "-log.csv";
 
         if(args.length >= 1) {
             configFilePath = args[0];
@@ -41,6 +41,16 @@ public class Main {
     private void init() {
         LoggerSingleton.initLogger(Configuration.getProperty("log.perf.path"));
         executor_ = Executors.newFixedThreadPool(Integer.parseInt(Configuration.getProperty("mw.pool.max")));
+        System.out.println("Starting executor threads: ");
+        for(int i = 0; i < Integer.parseInt(Configuration.getProperty("mw.pool.max")); i++) {
+            executor_.submit(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.print(Thread.currentThread().getId() + " ");
+                }
+            });
+        }
+        System.out.print("\n");
         acceptor_ = new Acceptor(Configuration.getProperty("net.iface.ip"), Integer.parseInt(Configuration.getProperty("net.iface.port")), executor_);
     }
 

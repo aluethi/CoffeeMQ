@@ -3,6 +3,7 @@ package com.company.network;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -21,12 +22,14 @@ public class ConnectionHandler implements Runnable {
 
     private final SocketChannel channel_;
     private final SelectionKey key_;
+    private final Selector selector_;
     private final ExecutorService executor_;
     private ByteBuffer buffer_;
 
-    public ConnectionHandler(SelectionKey key, SocketChannel channel, ExecutorService executor) {
+    public ConnectionHandler(SelectionKey key, SocketChannel channel, Selector selector, ExecutorService executor) {
         key_ = key;
         channel_ = channel;
+        selector_ = selector;
         executor_ = executor;
         buffer_ = ByteBuffer.allocate(2048);
     }
@@ -38,8 +41,10 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run() {
         if(key_.isReadable()) {
+            LOGGER_.log(Level.INFO, "reading");
             read();
         } else if(key_.isWritable()) {
+            LOGGER_.log(Level.INFO, "writing");
             write();
         }
     }
@@ -58,6 +63,7 @@ public class ConnectionHandler implements Runnable {
             // read first message size
             do {
                 if((bytes = channel_.read(buffer_)) < 0) {
+                    LOGGER_.log(Level.INFO, "Message size bytes: " + bytes);
                     return;
                 }
                 bytesRead += bytes;
@@ -78,6 +84,7 @@ public class ConnectionHandler implements Runnable {
             // read more from the network..
             while(bytesRead < size){
                 if((bytes = channel_.read(buffer_)) < 0) {
+                    LOGGER_.log(Level.INFO, "Message rest bytes: " + bytes);
                     return;
                 }
                 bytesRead += bytes;
@@ -86,12 +93,16 @@ public class ConnectionHandler implements Runnable {
             // submit a client to the executor service
             buffer_.flip();
             buffer_.position(4);
+            LOGGER_.log(Level.INFO, "executing");
             executor_.submit(new Connection(buffer_,
                     // register the write back callback
                     new ICallback() {
                         @Override
                         public void callback() {
+                            LOGGER_.log(Level.INFO, "Calling callback");
                             key_.interestOps(SelectionKey.OP_WRITE);
+                            selector_.wakeup();
+                            LOGGER_.log(Level.INFO, "Interest ops set");
                     }
             }));
         } catch (IOException e) {

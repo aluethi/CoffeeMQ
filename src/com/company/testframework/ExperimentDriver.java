@@ -40,7 +40,7 @@ public class ExperimentDriver {
         System.out.println("Loading experiment class: " + args[0]);
         try {
             String date = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss").format(new Date(System.currentTimeMillis()));
-            String logPath = "var/" + args[0] + "-" + date + "-log.csv";
+            String logPath = "log/" + args[0] + "-" + date + "-log.csv";
             LoggerSingleton.initLogger(logPath);
             Class<Experiment> expClass = (Class<Experiment>) ExperimentDriver.class.getClassLoader().loadClass("com.company.testframework.experiments." + args[0]);
             Experiment experiment = expClass.newInstance();

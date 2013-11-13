@@ -3,6 +3,8 @@ package com.company.core;
 import com.company.model.Message;
 
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -47,6 +49,8 @@ public class Response {
     private final int errorCode_;
     private final Message m_;
 
+    private static Logger LOGGER_ = Logger.getLogger(Response.class.getCanonicalName());
+
     public static Response ok() {
         return new Response(STATUS_OK);
     }
@@ -78,6 +82,7 @@ public class Response {
     }
 
     public void serialize(ByteBuffer buffer) {
+        LOGGER_.log(Level.INFO, "Serializing response: " + status_ + "/" + errorCode_);
         buffer.clear();
         buffer.putInt(status_);
         if(status_ != STATUS_OK) {
@@ -92,5 +97,4 @@ public class Response {
             buffer.put(m_.getMessage().getBytes());
         }
     }
-
 }
