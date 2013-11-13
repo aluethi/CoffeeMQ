@@ -41,10 +41,10 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run() {
         if(key_.isReadable()) {
-            LOGGER_.log(Level.INFO, "reading");
+            LOGGER_.log(Level.FINE, "reading");
             read();
         } else if(key_.isWritable()) {
-            LOGGER_.log(Level.INFO, "writing");
+            LOGGER_.log(Level.FINE, "writing");
             write();
         }
     }
@@ -63,7 +63,8 @@ public class ConnectionHandler implements Runnable {
             // read first message size
             do {
                 if((bytes = channel_.read(buffer_)) < 0) {
-                    LOGGER_.log(Level.INFO, "Message size bytes: " + bytes);
+                    LOGGER_.log(Level.FINE, "Message size bytes: " + bytes);
+                    channel_.close();
                     return;
                 }
                 bytesRead += bytes;
@@ -84,7 +85,8 @@ public class ConnectionHandler implements Runnable {
             // read more from the network..
             while(bytesRead < size){
                 if((bytes = channel_.read(buffer_)) < 0) {
-                    LOGGER_.log(Level.INFO, "Message rest bytes: " + bytes);
+                    LOGGER_.log(Level.FINE, "Message rest bytes: " + bytes);
+                    channel_.close();
                     return;
                 }
                 bytesRead += bytes;
@@ -93,16 +95,16 @@ public class ConnectionHandler implements Runnable {
             // submit a client to the executor service
             buffer_.flip();
             buffer_.position(4);
-            LOGGER_.log(Level.INFO, "executing");
+            //LOGGER_.log(Level.INFO, "executing");
             executor_.submit(new Connection(buffer_,
                     // register the write back callback
                     new ICallback() {
                         @Override
                         public void callback() {
-                            LOGGER_.log(Level.INFO, "Calling callback");
+                            LOGGER_.log(Level.FINE, "Calling callback");
                             key_.interestOps(SelectionKey.OP_WRITE);
                             selector_.wakeup();
-                            LOGGER_.log(Level.INFO, "Interest ops set");
+                            LOGGER_.log(Level.FINE, "Interest ops set");
                     }
             }));
         } catch (IOException e) {

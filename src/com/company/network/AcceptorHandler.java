@@ -41,15 +41,15 @@ public class AcceptorHandler implements Runnable {
                 LOGGER_.log(Level.INFO, "Accepted new connection from: " + channel.socket().getRemoteSocketAddress());
                 channel.configureBlocking(false);
 
-                LOGGER_.log(Level.INFO, "Waking up selector");
+                LOGGER_.log(Level.FINE, "Waking up selector");
                 selector_.wakeup();
 
 
-                LOGGER_.log(Level.INFO, "Registering on selector");
+                LOGGER_.log(Level.FINE, "Registering on selector");
                 SelectionKey key = channel.register(selector_, SelectionKey.OP_READ);
 
 
-                LOGGER_.log(Level.INFO, "Attaching ConnectionHandler");
+                LOGGER_.log(Level.FINE, "Attaching ConnectionHandler");
                 key.attach(new ConnectionHandler(key, channel, selector_, executor_));
             }
         } catch (IOException e) {

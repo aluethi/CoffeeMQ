@@ -82,7 +82,7 @@ public class Response {
     }
 
     public void serialize(ByteBuffer buffer) {
-        LOGGER_.log(Level.INFO, "Serializing response: " + status_ + "/" + errorCode_);
+        LOGGER_.log(Level.FINE, "Serializing response: " + status_ + "/" + errorCode_);
         buffer.clear();
         buffer.putInt(status_);
         if(status_ != STATUS_OK) {

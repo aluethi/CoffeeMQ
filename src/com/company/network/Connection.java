@@ -30,7 +30,7 @@ public class Connection implements Runnable {
      */
     @Override
     public void run() {
-        LOGGER_.log(Level.INFO, "Running executor: " + Thread.currentThread().getId());
+        LOGGER_.log(Level.FINE, "Running executor: " + Thread.currentThread().getId());
         ExecutionEngine engine = new ExecutionEngine();
         engine.process(buffer_);
 

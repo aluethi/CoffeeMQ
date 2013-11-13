@@ -1,7 +1,1 @@
-* Transaction in stored procedures
 * Atomic message insert into multiple queues
-* Management console
-* Revise exception handling
-* Indices
-* Empty queue exception
-* Log Framework

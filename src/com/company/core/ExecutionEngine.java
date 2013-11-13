@@ -1,6 +1,5 @@
 package com.company.core;
 
-import com.company.config.Configuration;
 import com.company.database.DaoManager;
 import com.company.exception.*;
 import com.company.logger.LoggerSingleton;
@@ -34,7 +33,7 @@ public class ExecutionEngine {
 
         switch(msgType) {
             case Response.MSG_REGISTER:
-                LOGGER_.log(Level.INFO, "MSG_REGISTER");
+                LOGGER_.log(Level.FINE, "MSG_REGISTER");
                 starttime = System.nanoTime();
                 resp = registerClient(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -42,7 +41,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_REGISTER");
                 break;
             case Response.MSG_DEREGISTER:
-                LOGGER_.log(Level.INFO, "MSG_DEREGISTER");
+                LOGGER_.log(Level.FINE, "MSG_DEREGISTER");
                 starttime = System.nanoTime();
                 resp = deregisterClient(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -50,7 +49,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_DEREGISTER");
                 break;
             case Response.MSG_CREATE_QUEUE:
-                LOGGER_.log(Level.INFO, "MSG_CREATE_QUEUE");
+                LOGGER_.log(Level.FINE, "MSG_CREATE_QUEUE");
                 starttime = System.nanoTime();
                 resp = createQueue(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -58,7 +57,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_CREATE_QUEUE");
                 break;
             case Response.MSG_GET_QUEUE:
-                LOGGER_.log(Level.INFO, "MSG_GET_QUEUE");
+                LOGGER_.log(Level.FINE, "MSG_GET_QUEUE");
                 starttime = System.nanoTime();
                 resp = getQueue(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -66,7 +65,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_GET_QUEUE");
                 break;
             case Response.MSG_DELETE_QUEUE:
-                LOGGER_.log(Level.INFO, "MSG_DELETE_QUEUE");
+                LOGGER_.log(Level.FINE, "MSG_DELETE_QUEUE");
                 starttime = System.nanoTime();
                 resp = deleteQueue(buffer_.getInt());
                 stoptime = System.nanoTime();
@@ -74,7 +73,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_DELETE_QUEUE");
                 break;
             case Response.MSG_PUT_INTO_QUEUE:
-                LOGGER_.log(Level.INFO, "MSG_PUT_INTO_QUEUE");
+                LOGGER_.log(Level.FINE, "MSG_PUT_INTO_QUEUE");
                 starttime = System.nanoTime();
                 resp = put(buffer_);
                 stoptime = System.nanoTime();
@@ -82,7 +81,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_PUT_INTO_QUEUE");
                 break;
             case Response.MSG_GET:
-                LOGGER_.log(Level.INFO, "MSG_GET");
+                LOGGER_.log(Level.FINE, "MSG_GET");
                 starttime = System.nanoTime();
                 resp = get(buffer_);
                 stoptime = System.nanoTime();
@@ -90,7 +89,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_GET");
                 break;
             case Response.MSG_PEEK:
-                LOGGER_.log(Level.INFO, "MSG_PEEK");
+                LOGGER_.log(Level.FINE, "MSG_PEEK");
                 starttime = System.nanoTime();
                 resp = peek(buffer_);
                 stoptime = System.nanoTime();
@@ -98,7 +97,7 @@ public class ExecutionEngine {
                 PERFLOG_.log(starttime + "," + stoptime + ",MSG_PEEK");
                 break;
         }
-        LOGGER_.log(Level.INFO, "End of execution engine process");
+        LOGGER_.log(Level.FINE, "End of execution engine process");
     }
 
     public Response registerClient(int clientId) {

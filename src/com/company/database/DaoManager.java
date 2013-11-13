@@ -22,13 +22,13 @@ public class DaoManager {
     private MessageDao messageDao_ = null;
 
     public void beginConnectionScope() {
-        LOGGER_.log(Level.INFO, "Begin connection scope.");
+        LOGGER_.log(Level.FINE, "Begin connection scope.");
         connection_ = PGConnectionPool.getInstance().getConnection();
     }
 
     public void endConnectionScope() {
         try {
-            LOGGER_.log(Level.INFO, "Ending connection scope.");
+            LOGGER_.log(Level.FINE, "Ending connection scope.");
             connection_.close();
         } catch (SQLException e) {
             LOGGER_.log(Level.SEVERE, "Could not close DB connection.");
@@ -38,7 +38,7 @@ public class DaoManager {
 
     public void beginTransaction() {
         try {
-            LOGGER_.log(Level.INFO, "Begin transaction scope.");
+            LOGGER_.log(Level.FINE, "Begin transaction scope.");
             connection_.setAutoCommit(false);
             //connection_.setTransactionIsolation(connection_.TRANSACTION_SERIALIZABLE);
         } catch (SQLException e) {
@@ -49,7 +49,7 @@ public class DaoManager {
 
     public void endTransaction() {
         try {
-            LOGGER_.log(Level.INFO, "Ending transaction scope.");
+            LOGGER_.log(Level.FINE, "Ending transaction scope.");
             connection_.commit();
         } catch (SQLException e) {
             LOGGER_.log(Level.SEVERE, "Could not end transaction.");
@@ -59,7 +59,7 @@ public class DaoManager {
 
     public void abortTransaction() {
         try {
-            LOGGER_.log(Level.INFO, "Aborting transaction.");
+            LOGGER_.log(Level.FINE, "Aborting transaction.");
             connection_.rollback();
         } catch (SQLException e) {
             LOGGER_.log(Level.SEVERE, "Could not abort transaction.");
