@@ -211,7 +211,7 @@ public class TraceExperiment extends Experiment {
             double thinkTime;
             Message msg = null;
 
-            int counter1 = 0, counter2 = 0;
+            /*int counter1 = 0, counter2 = 0;
 
             int count = 0;
             while(true) {
@@ -259,10 +259,10 @@ public class TraceExperiment extends Experiment {
 
                 count = Integer.parseInt(msg.getMessage());
                 count++;
-            }
+            }*/
 
 
-            /*//if(id_ < partnerId_) {
+            if(id_ < partnerId_) {
                 msg = new Message(partnerId_, 0, 0, "0");
                 try {
                     queue_.put(msg);
@@ -276,7 +276,7 @@ public class TraceExperiment extends Experiment {
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-            //}
+            }
 
             while(true) {
                 try {
@@ -324,7 +324,7 @@ public class TraceExperiment extends Experiment {
                 } catch (MessageEnqueueingException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-            }*/
+            }
         }
     }
 
