@@ -1,5 +1,6 @@
-package com.company.database;
+package com.company.management;
 
+import com.company.database.PGConnectionPool;
 import com.company.exception.*;
 import com.company.model.Client;
 import com.company.model.Message;

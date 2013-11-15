@@ -2,19 +2,15 @@ package com.company.test.database;
 
 import com.company.config.Configuration;
 import com.company.database.PGConnectionPool;
-import com.company.database.PGDatasource;
-import com.company.exception.ClientCreationException;
-import com.company.exception.QueueCreationException;
+import com.company.management.PGDatasource;
 import com.company.model.Client;
 import com.company.model.Message;
 import com.company.model.ModelFactory;
 import com.company.model.Queue;
 import org.junit.*;
-import org.junit.runners.model.Statement;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Created with IntelliJ IDEA.

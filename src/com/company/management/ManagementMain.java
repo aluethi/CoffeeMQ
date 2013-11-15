@@ -1,21 +1,12 @@
 package com.company.management;
 
 import com.company.config.Configuration;
-import com.company.database.DAO;
-import com.company.database.PGDatasource;
 import com.company.exception.GetAllMessagesFromQueueException;
 import com.company.exception.GetAllQueuesException;
-import com.company.exception.GetCountException;
 import com.company.model.*;
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.*;
 

@@ -1,4 +1,4 @@
-package com.company.database;
+package com.company.management;
 
 import com.company.exception.*;
 import com.company.model.Client;
